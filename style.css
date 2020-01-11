@@ -3,21 +3,29 @@ html, body {
   padding: 0 0 0 0;
   margin: 0;
   font-family: 'helvetica', 'arial', 'sans';
+  color: #F0F;
+}
+
+.construction {
+  background-color: #1A3047;
+  width: 640px;
+  padding: 100px;
+  justify-content: center;
 }
 
 h1,h2,h3,h4 {
   font-family: 'helvetica', 'arial', 'sans';
+  color: #FOF;
   }
 
 
 a {
-  color: #000;
+  color: #666;
 }
 
 .header {
-  background: #fff;
+  background: #F0F;
   color: #000;
-  height: 500px;
   padding: 30px 30px 30px;
 }
 
@@ -66,4 +74,3 @@ a {
   color: #FFF;
   text-decoration: none;
 }
-
