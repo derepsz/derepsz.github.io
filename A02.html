@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
+
+        <title>HCDE439</title>
+
+        <link href="style.css" media="screen" rel="stylesheet" type="text/css" />
+
+    </head>
+    <body>
+      <body bgcolor="#1A3047" text="#F0F">
+          <center>
+            <img src="A02/A02fade.gif"><br>
+            <img src="A02/A02circuit.jpg" width="500px"><br>
+            <img src="A01/A02schematic.jpg" width="500px"><br>
+            <img src="A02/A02maths.jpg" width="500px"><br>
+
+          </center>
+            <p> This time we're going make an LED fade using a button!</p>
+            <p>
+Except it'll be two buttons, and the LED is an RGB LED so technically it's three
+LEDs bundled into one, and we're going to make a PARTY LIGHT. One button is designed
+to adjust between two brightness levels while the other cycles through the magical
+color series RYGCBM. A million for-loops and many changes of state will allow us to keep
+this party going all night.
+            </p>
+            <p>
+By recommendation of ELEGOO in their RGB LED TUTORIAL and by confirmation of
+hard math and science, 220 ohm resistors are used for the RGB LED. For the buttons,
+instead of using the regular digitalRead INPUT with an external pulldown resistor,
+the INPUT_PULLUP mode is implemented for neat and tidy circuitry in the form of
+two less resistors and a bonus educational opportunity. The INPUT_PULLUP setting
+utilizes a 20k ohm resistor inside the Arduino to default the voltage to a HIGH
+setting, allowing an external switch to pull the signal low by shorting to ground.
+The 20k ohm resistor throttles the current at a mega safe level of 0.025 mA or basically nothing,
+saving your precious electrons for components that actually need them.
+            </p>
+
+</body>
+            </p>
+              <pre><code>
+/*
+  A02 HCDE439 WIN20 // DEREK R
+
+  An integrated RGB LED is controlled using 2 buttons.
+  One button cycles color through RYGCBM, the other
+  cycles luminosity between High and Low.
+
+  The following resources were referenced:
+  1) Arduino Examples: 03. Analog: Fading
+     https://www.arduino.cc/en/Tutorial/Fading
+  2) ELEGOO Super Starter Kit Tutorials: Lesson 4 RGB LED
+  #) Adafruit Arudino - Lesson 3. RGB LED
+     https://learn.adafruit.com/adafruit-arduino-lesson-3-rgb-leds/arduino-sketch
+  1) Arduino Examples: Input Pullup Serial
+     https://www.arduino.cc/en/Tutorial/InputPullupSerial
+  3) Arduino Reference: Functions
+     https://www.arduino.cc/en/Reference/FunctionDeclaration
+*/
+
+// Create constants relating components to pins
+#define ledPinR 11
+#define ledPinG 10
+#define ledPinB 9
+#define colorButtonPin 3
+#define lumButtonPin 2
+
+// Create constants for state
+#define lumOff 0
+#define lumLow 1
+#define lumHigh 2
+
+// Create constants for color
+#define white 0
+#define red 1
+#define yellow 2
+#define green 3
+#define cyan 4
+#define blue 5
+#define magenta 6
+
+// Create variables for button state
+// Default is HIGH for internal pullup resistor
+int colorButtonState = HIGH;
+int lumButtonState = HIGH;
+
+// Create variables for color and luminosity state
+int colorState;
+int lumState;
+
+// Create variables for intensity level sent to LED
+int lowVal = 50;
+int highVal = 255;
+int lumVal = lowVal;
+int lumDif = highVal - lowVal;
+
+// Timing variables making fade take 1 second regardless of state
+int fadeTime = 1000;
+int lumRate = fadeTime / lumDif;
+int colorRate = fadeTime / lumVal;
+
+// RGB variables initialized at lowVal
+int r = lumVal;
+int g = lumVal;
+int b = lumVal;
+
+int i; // Used in loops
+
+
+// Create function for updating output to RGB LED
+void ledColor(int r, int g, int b) {
+  analogWrite(ledPinR, r);
+  analogWrite(ledPinG, g);
+  analogWrite(ledPinB, b);
+}
+
+void setup() {
+  // initialize LED pins to OUTPUT
+  pinMode(ledPinR, OUTPUT);
+  pinMode(ledPinG, OUTPUT);
+  pinMode(ledPinB, OUTPUT);
+
+  // initilize button pins to input using
+  // built-in PULLUP resistor (HIGH = off)
+  pinMode(colorButtonPin, INPUT_PULLUP);
+  pinMode(lumButtonPin, INPUT_PULLUP);
+
+  // initialize LED and system state
+  ledColor(r, g, b);
+  colorState = white;
+  lumState = lumLow;
+}
+
+void loop() {
+  // check for button press
+  colorButtonState = digitalRead(colorButtonPin);
+  lumButtonState = digitalRead(lumButtonPin);
+
+  // LUMINOSITY LOW TO HIGH
+  // if lum is low and lumButton is pressed, we want
+  // the lum to increase without changing color
+  // this requires a slew of if-statements.
+  // or a more experienced programmer ¯\_(ツ)_/¯
+
+  if (lumState == lumLow && lumButtonState == LOW) {
+
+    // now that the button has been pressed while the
+    // luminosity is low, we want to check color state and
+    // adjust intensity levels for each LED inside
+    // the RGB LED accordingly
+    if (colorState == white && lumButtonState == LOW) {
+
+      // now the button has been pressed while we are in
+      // in lumLow state and colorState is white. we need
+      // a loop to gradually fade from low intensity white
+      // to high intensity white.
+      // the for-loop uses i as a counter, beginning with zero.
+      // which will run while i is less than lumDif (which is the
+      // number of steps between high and low intensity).
+      // i++ signifies that i will increase by 1 each time
+      // the for-loop cycles. in each cycle, the appropriate RGB
+      // values are increased by 1 (all of them for white).
+      // then the OUTPUT at each pin is updated using the ledColor
+      // function, which just bundles the analogWrite operations.
+      // finally, before the loop is repeated, a short delay occurs.
+      for (i = 0; i < lumDif; i++) {
+        r += 1;
+        g += 1;
+        b += 1;
+        ledColor(r, g, b);
+        delay(lumRate);
+      }
+    }
+    if (colorState == red && lumButtonState == LOW) {
+      for (i = 0; i < lumDif; i++) {
+        r += 1;
+        g = 0;
+        b = 0;
+        ledColor(r, g, b);
+        delay(lumRate);
+      }
+    }
+
+    if (colorState == yellow && lumButtonState == LOW) {
+      for (i = 0; i < lumDif; i++) {
+        r += 1;
+        g += 1;
+        b = 0;
+        ledColor(r, g, b);
+        delay(lumRate);
+      }
+    }
+
+    if (colorState == green && lumButtonState == LOW) {
+      for (i = 0; i < lumDif; i++) {
+        r = 0;
+        g += 1;
+        b = 0;
+        ledColor(r, g, b);
+        delay(lumRate);
+      }
+    }
+
+    if (colorState == cyan && lumButtonState == LOW) {
+      for (i = 0; i < lumDif; i++) {
+        r = 0;
+        g += 1;
+        b += 1;
+        ledColor(r, g, b);
+        delay(lumRate);
+      }
+    }
+
+    if (colorState == blue && lumButtonState == LOW) {
+      for (i = 0; i < lumDif; i++) {
+        r = 0;
+        g = 0;
+        b += 1;
+        ledColor(r, g, b);
+        delay(lumRate);
+      }
+    }
+
+    if (colorState == magenta && lumButtonState == LOW) {
+      for (i = 0; i < lumDif; i++) {
+        r += 1;
+        g = 0;
+        b += 1;
+        ledColor(r, g, b);
+        delay(lumRate);
+      }
+    }
+    // once the luminosity has gone from low to high,
+    // lumState and lumVal are updated to reflect this
+    // change. the colorRate is updated so that the fade
+    // time between colors is the same for both high and
+    // low luminosity. finally the lumButtonState is forced
+    // into HIGH to avoid multiple operations for one press.
+    lumState = lumHigh;
+    lumVal = highVal;
+    colorRate = fadeTime / lumVal;
+    lumButtonState = HIGH;
+  }
+
+  // LUMINOSITY HIGH TO LOW
+  // please see documentation above for LUMINOSITY LOW TO HIGH.
+  // the code in this section is essentially the opposite.
+  if (lumState == lumHigh && lumButtonState == LOW) {
+
+    if (colorState == white && lumButtonState == LOW) {
+      for (i = 0; i < lumDif; i++) {
+        r -= 1;
+        g -= 1;
+        b -= 1;
+        ledColor(r, g, b);
+        delay(lumRate);
+      }
+    }
+
+    if (colorState == red && lumButtonState == LOW) {
+      for (i = 0; i < lumDif; i++) {
+        r -= 1;
+        g = 0;
+        b = 0;
+        ledColor(r, g, b);
+        delay(lumRate);
+      }
+    }
+
+    if (colorState == yellow && lumButtonState == LOW) {
+      for (i = 0; i < lumDif; i++) {
+        r -= 1;
+        g -= 1;
+        b = 0;
+        ledColor(r, g, b);
+        delay(lumRate);
+      }
+    }
+
+    if (colorState == green && lumButtonState == LOW) {
+      for (i = 0; i < lumDif; i++) {
+        r = 0;
+        g -= 1;
+        b = 0;
+        ledColor(r, g, b);
+        delay(lumRate);
+      }
+    }
+
+    if (colorState == cyan && lumButtonState == LOW) {
+      for (i = 0; i < lumDif; i++) {
+        r = 0;
+        g -= 1;
+        b -= 1;
+        ledColor(r, g, b);
+        delay(lumRate);
+      }
+    }
+
+    if (colorState == blue && lumButtonState == LOW) {
+      for (i = 0; i < lumDif; i++) {
+        r = 0;
+        g = 0;
+        b -= 1;
+        ledColor(r, g, b);
+        delay(lumRate);
+      }
+    }
+
+    if (colorState == magenta && lumButtonState == LOW) {
+      for (i = 0; i < lumDif; i++) {
+        r -= 1;
+        g = 0;
+        b -= 1;
+        ledColor(r, g, b);
+        delay(lumRate);
+      }
+    }
+      lumState = lumLow;
+      lumButtonState = HIGH;
+      lumVal = lowVal;
+      colorRate = fadeTime / lumVal;
+  }
+
+
+  // THE COLORS!
+  // the basic framework here is conceptually the same
+  // to that of changing the brightness. if the colorButton
+  // is pressed, if statements are used to run a for-loop
+  // based on the color state. a fixed-order sequence of colors
+  // (RYGCBM standard) is implemented so that the RGB values
+  // are adjusted in a specific, repeatable pattern depending
+  // on the active state. note that using lumVal allows for
+  // luminosity and color to be controlled independently.
+  if (colorState == white && colorButtonState == LOW ) {
+    for (i = 0; i < lumVal; i++) {
+      r = lumVal;
+      g -= 1;
+      b -= 1;
+      ledColor(r, g, b);
+      delay(colorRate);
+    }
+    colorState = red;
+    colorButtonState = HIGH;
+  }
+  if (colorState == red && colorButtonState == LOW ) {
+    for (i = 0; i < lumVal; i++) {
+      r = lumVal;
+      g += 1;
+      b = 0;
+      ledColor(r, g, b);
+      delay(colorRate);
+    }
+    colorState = yellow;
+    colorButtonState = HIGH;
+  }
+  if (colorState == yellow && colorButtonState == LOW ) {
+    for (i = 0; i < lumVal; i++) {
+      r -= 1;
+      g = lumVal;
+      b = 0;
+      ledColor(r, g, b);
+      delay(colorRate);
+    }
+    colorState = green;
+    colorButtonState = HIGH;
+  }
+  if (colorState == green && colorButtonState == LOW ) {
+    for (i = 0; i < lumVal; i++) {
+      r = 0;
+      g = lumVal;
+      b += 1;
+      ledColor(r, g, b);
+      delay(colorRate);
+    }
+    colorState = cyan;
+    colorButtonState = HIGH;
+  }
+  if (colorState == cyan && colorButtonState == LOW ) {
+    for (i = 0; i < lumVal; i++) {
+      r = 0;
+      g -= 1;
+      b = lumVal;
+      ledColor(r, g, b);
+      delay(colorRate);
+    }
+    colorState = blue;
+    colorButtonState = HIGH;
+  }
+  if (colorState == blue && colorButtonState == LOW) {
+    for (i = 0; i < lumVal; i++) {
+      r += 1;
+      g = 0;
+      b = lumVal;
+      ledColor(r, g, b);
+      delay(colorRate);
+    }
+    colorState = magenta;
+    colorButtonState = HIGH;
+  }
+  if (colorState == magenta && colorButtonState == LOW) {
+    for (i = 0; i < lumVal; i++) {
+      r = lumVal;
+      g += 1;
+      b = lumVal;
+      ledColor(r, g, b);
+      delay(colorRate);
+    }
+    colorState = white;
+    colorButtonState = HIGH;
+  }
+}
+
+</code></pre>
+            </p>
+
+    </body>
+</html>
