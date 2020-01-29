@@ -9,7 +9,7 @@
         <link href="style.css" media="screen" rel="stylesheet" type="text/css" />
 
     </head>
-    <body>
+
       <body bgcolor="#1A3047" text="#F0F">
           <center>
             <img src="A03/A03_inputoutput.gif"><br>
@@ -17,28 +17,40 @@
             <img src="A03/A03_schematic.jpg" width="500px"><br>
             <img src="A03/A03_calcs.jpg"><br>
           </center>
-            <p> Feelin moody? Are you on fire? Check this one out.</p>
+            <p> Feelin moody? Are you on fire? We've got just the circuit for you!</p>
             <p>
-Except it'll be two buttons, and the LED is an RGB LED so technically it's three
-LEDs bundled into one, and we're going to make a PARTY LIGHT. One button is designed
-to adjust between two brightness levels while the other cycles through the magical
-color series RYGCBM. A million for-loops and many changes of state will allow us to keep
-this party going all night.
+To show off newly acquired knowledge for using sensors with the Arduino by way
+of the analog inputs, the idea is had to make a MOOD RING or at least something
+that operates like one. The sensor used for this is a THERMISTOR, which changes
+its resistance depending on temperature, providing the opportunity to use it in
+a voltage divider and send a variable voltage to you Arduino, which can then
+translate that into numbers that can be used to control an RGB LED!
             </p>
             <p>
-By recommendation of ELEGOO in their RGB LED TUTORIAL and by confirmation of
-hard math and science, 220 ohm resistors are used for the RGB LED. For the buttons,
-instead of using the regular digitalRead INPUT with an external pulldown resistor,
-the INPUT_PULLUP mode is implemented for neat and tidy circuitry in the form of
-two less resistors and a bonus educational opportunity. The INPUT_PULLUP setting
-utilizes a 20k ohm resistor inside the Arduino to default the voltage to a HIGH
-setting, allowing an external switch to pull the signal low by shorting to ground.
-The 20k ohm resistor throttles the current at a mega safe level of 0.025 mA or basically nothing,
-saving your precious electrons for components that actually need them.
+The first step in the design process was to deteremine the thermistor's resistance
+at relevant temperatures. This was done by simply attaching a multimeter to the
+component and taking note of the values while doing things such as: letting it sit
+at room temperature, squeezing it between your fingers, holding an iceblock to it,
+and passing a flame over it.
             </p>
-
+            <p>
+It became immediately apparent that the difference between room temp and the human
+touch did not produce a great range of resistance, and would have a limited range
+of voltage and thus low resolution output from the analogRead. Fortunately, it's
+possible to adjust the upper range of voltage read by the analog inputs on an Arduino
+using analogReference!
+</p>
+<p>
+By wiring another voltage divider we could then use half of the Arduino's HIGH
+voltage, which was checked and found to be slightly higher than 5V at 5.12V.
+Using Magicsoft Excel a spreadsheet was constructed to calculate the voltages
+resulting from different temperatures (and their associated resistance). using
+this information, analogRead values were calculated to facilitate EZ coding.
+</p>
 </body>
-            </p>
+
+
+
               <pre><code>
 /*
   A02 HCDE439 WIN20 // DEREK R // ITS A MOOD-RING?
