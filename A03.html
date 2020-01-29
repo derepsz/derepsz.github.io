@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
+
+        <title>HCDE439</title>
+
+        <link href="style.css" media="screen" rel="stylesheet" type="text/css" />
+
+    </head>
+    <body>
+      <body bgcolor="#1A3047" text="#F0F">
+          <center>
+            <img src="A03/A03_inputoutput.gif"><br>
+            <img src="A03/A03_circuit.jpg" width="500px"><br>
+            <img src="A03/A03_schematic.jpg" width="500px"><br>
+            <img src="A03/A03_calcs.jpg" width="500px"><br>
+          </center>
+            <p> Feelin moody? Are you on fire? Check this one out.</p>
+            <p>
+Except it'll be two buttons, and the LED is an RGB LED so technically it's three
+LEDs bundled into one, and we're going to make a PARTY LIGHT. One button is designed
+to adjust between two brightness levels while the other cycles through the magical
+color series RYGCBM. A million for-loops and many changes of state will allow us to keep
+this party going all night.
+            </p>
+            <p>
+By recommendation of ELEGOO in their RGB LED TUTORIAL and by confirmation of
+hard math and science, 220 ohm resistors are used for the RGB LED. For the buttons,
+instead of using the regular digitalRead INPUT with an external pulldown resistor,
+the INPUT_PULLUP mode is implemented for neat and tidy circuitry in the form of
+two less resistors and a bonus educational opportunity. The INPUT_PULLUP setting
+utilizes a 20k ohm resistor inside the Arduino to default the voltage to a HIGH
+setting, allowing an external switch to pull the signal low by shorting to ground.
+The 20k ohm resistor throttles the current at a mega safe level of 0.025 mA or basically nothing,
+saving your precious electrons for components that actually need them.
+            </p>
+
+</body>
+            </p>
+              <pre><code>
+/*
+  A02 HCDE439 WIN20 // DEREK R // ITS A MOOD-RING?
+
+  Exhibit incredibly advanced interpretation of natural phenomena
+  by controlling an LED using analogRead() and an analog input pin.
+  The heart of the circuit is a thermistor which translates the magic
+  of the human touch to the red&blue LEDs in an RGB LED. Additionally,
+  a simple voltage divider sets the reference voltage for analogRead()
+  and a potentiometer is included in the thermistor circuit to allow
+  for calibration of the system.
+
+  Note that higher analogRead values correlate with lower temperatures.
+
+  The following resources were referenced:
+  1) Arduino Reference: analogRead()
+     https://www.arduino.cc/reference/en/language/functions/analog-io/analogread/
+  2) Arduino Reference: analogReference()
+     https://www.arduino.cc/reference/en/language/functions/analog-io/analogreference/
+  3) Arduino Reference: map()
+     https://www.arduino.cc/reference/en/language/functions/math/map/
+  4) HCDE439 A02 - DEREK R
+     https://derepsz.github.io/A02.html
+*/
+
+// name RGB-LED pins
+#define ledPinR 9
+#define ledPinG 10
+#define ledPinB 11
+
+// initialize variables for analogRead
+
+int thermVal;
+int redVal;
+int greenVal;
+int blueVal;
+
+// variables for if structure
+// values were derived using calcs and testing (see full doc)
+
+int lowerLim = 700;
+int upperLim = 1020;
+int bodyLower = 760;
+int transition = 800;
+int roomUpper = 840;
+
+// function for simplifying RGB-LED control
+
+void ledColor(int r, int g, int b) {
+  analogWrite(ledPinR, r);
+  analogWrite(ledPinG, g);
+  analogWrite(ledPinB, b);
+}
+void setup() {
+
+  // initialize serial connection w/ standard baud rate
+  // analogRefernce will use the voltage seen at AREF pin as
+  // upper limit for any analog inputs used (A0 in this case)
+
+  Serial.begin(9600);
+  analogReference(EXTERNAL);
+}
+
+void loop() {
+
+  // create a variable to hold the output of analogRead,
+  // updating at the beginning of every loop. also print
+  // this value to serial
+
+  thermVal = analogRead(A0);
+  Serial.println(thermVal);
+
+  // the following if-statements determine the behavior
+  // of the circuit based on a temperature range. the
+  // comparison values essentially isolate the particular
+  // if condition, creating a focused loop
+
+  if (thermVal < lowerLim) {
+
+    // if the temperature is high, this condition will
+    // keep the LED at full red, print "2HOT2HANDLE" followed
+    // by a line break, wait 250ms, turn the LED off, and then
+    // wait another 250ms. in the context of the master loop,
+    // the LED will blink RED and print the warning repeatedly
+
+    ledColor(255, 0, 0);
+    Serial.println("2HOT2HANDLE");
+    delay(250);
+    ledColor(0, 0, 0);
+    delay(250);
+  }
+
+  // using an else if condition will prevent sequential triggering
+
+  else if (thermVal >= lowerLim && thermVal < bodyLower) {
+
+    // for this range, which is between the hot warning and the
+    // higher end of the body-temperature range, we want the LED
+    // to stay red, so we tell it to be red and do nothing else.
+
+    ledColor(255, 0, 0);
+  }
+
+  else if (thermVal >= bodyLower && thermVal < transition) {
+
+    // here comes the fun part! now we're getting into mood-ring
+    // territory. for this range, we want to fade from red to
+    // magenta as heat from skin contact decreases.
+    // we'll do this by keeping the red LED on full blast while
+    // manipulating the power level of the blue LED.
+    // to do that we map the range of our if condition (which is a
+    // slice of the analogRead output) to a range that we can control
+    // the LED, specifically 0-255, which is accepted by analogWrite,
+    // which drives our LED.
+    // the master loop runs quick and updates thermVal every time
+    // this if condition is entered, which then updates the blueVal
+    // variable, which then updates the power sent to the LED, all
+    // at a rate that allows for a fading effect.
+
+    blueVal = map(thermVal, bodyLower, transition-1, 0, 255);
+    ledColor(255, 0, blueVal);
+  }
+  else if (thermVal >= transition && thermVal < roomUpper) {
+
+    // this is essentially the same, except we transition from the
+    // mid-mood color of magenta to steady blue for room temp. this
+    // is done with a similar mapping procedure using the if-condition
+    // specific range and manipulating the red LED instead of the blue.
+
+    redVal = map(thermVal, transition, roomUpper-1, 255, 0);
+    ledColor(redVal, 0, 255);
+  }
+
+  else if (thermVal >= roomUpper && thermVal < upperLim) {
+
+    // between roomtemp and the cold warning, we keep it blue
+
+    ledColor(0, 0, 255);
+  }
+
+  else if (thermVal > upperLim) {
+
+    // similarly to the hot warning, if things get too frosty we blink
+    // the full-blue LED and print a warning.
+
+    ledColor(0, 0, 255);
+    Serial.println("2COLD2HOLD");
+    delay(250);
+    ledColor(0, 0, 0);
+    delay(250);
+  }
+  else {
+
+    // if something goes wrong and none of the above if-conditions
+    // are met, we print ERROR
+
+    Serial.println("ERROR");
+  }
+}
+</code></pre>
+            </p>
+
+    </body>
+</html>
