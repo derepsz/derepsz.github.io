@@ -35,27 +35,37 @@ the Voltage-In pin.
 </body>
 
               <pre><code>
-#include <IRremote.h>
+#include <IRremote.h> // import IR library
 
+// define pins
 #define IRRECV_PIN 8
 #define IRPWR_PIN 9
 #define IRGND_PIN 10
 #define GATE_PIN 5
 
+// initialize IR protocol
 IRrecv irrecv(IRRECV_PIN);
 decode_results results;
 
+// set constants relating hex signal to english
 const byte powerBtn = 0xFFA25D;
 const byte upBtn = 0xFF906F;
 const byte downBtn = 0xFFE01F;
 const byte repeat = 0xFFFFFFFF;
 
+// variables for program
 byte lastBtn;
 byte remotePress;
 bool LEDPower = true;
 byte brightness;
 
 void setup() {
+  // serial used to  make sure things are working
+  // IRPWR_PIN, IRGND_PIN are set to HIGH and LOW
+  // (respectively) acting as power and ground for
+  // IR receiver (which is stuck directly into ard)
+  // GATE_PIN is set to control MOSFET
+  // enable IR read and blink unit when signal received
   Serial.begin(9600);
   pinMode(IRPWR_PIN, OUTPUT);
   pinMode(IRGND_PIN, OUTPUT);
@@ -66,17 +76,34 @@ void setup() {
   irrecv.blink13(true);
 }
 void loop() {
+  // analogWrite to use PWM on GATE,
+  // modulating 12V seen by LED strip
   analogWrite(GATE_PIN, brightness);
 
+  // required for IR to work,
+  // taken from tutorial
   if (irrecv.decode(&results)) {
+
+    // english vars here for ... ease
     remotePress = results.value;
+
+    // check for repeat value,
+    // force last button press into switch
 
     if (remotePress == repeat) {
       remotePress = lastBtn;
     }
 
+    // switch allows for case by case action
+    // depending on what button is pressed
     switch (remotePress) {
       case powerBtn:
+        // if power button is pressed check to
+        // see whether light is on or off first,
+        // then switch state and adjust brightness.
+        // finally but a delay in for bounce.
+        // all switch cases need break or else
+        // following cases will be read
         if (LEDPower == false) {
           brightness = 100;
           LEDPower = true;
@@ -92,6 +119,9 @@ void loop() {
           delay(1000);
           break;
         }
+
+      //if up button pressed, increase the brightness
+      // until max, or further press will cycle back to zero
       case upBtn:
         if (brightness < 235) {
           brightness += 20;
@@ -100,8 +130,10 @@ void loop() {
           brightness = 235;
         }
         Serial.println("INC");
-        lastBtn = upBtn;
+        lastBtn = upBtn; // update last button for repeat
         break;
+
+      //basically the same as up botton except reverse
       case downBtn:
         if (brightness > 20) {
           brightness -= 20;
@@ -112,9 +144,9 @@ void loop() {
         Serial.println("DEC");
         lastBtn = downBtn;
         break;
-      default: break;
+      default: break; // if other button press just break
     }
-    irrecv.resume();
+    irrecv.resume(); // required for ir to read next press
   }
 }
 
