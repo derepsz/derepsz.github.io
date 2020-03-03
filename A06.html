@@ -32,11 +32,6 @@
   <p>
     In order to accept the line-level analog audio signal (~ +/-2V), we need a simple DC offset circuit to keep ardy from seeing any negative voltage, which can be harmful! Essentially, this part of the circuit is a voltage divider, feeding a steady 2.5V to the analog input. With a saftey-DC-blocking-capicitor in the mix, the audio signal is fed into this divider, and by the power of science the analog signal either adds to or subtracts from the voltage already at this point, effectively providing the analog input a range of 1-4V. This is confirmed by the analogRead values which range from about 200-800.
   </p>
-  <p>
-  </p>
-  <p>
-
-  </p>
 </body>
 
 <pre><code>
@@ -204,8 +199,6 @@ function draw() {
 
 
 </code></pre>
-</p>
-
 </body>
 
 </html>
