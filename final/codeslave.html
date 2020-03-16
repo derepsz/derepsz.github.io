@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>HCDE439 - DEREPSZ 2020</title>
+    <link href="finalstyle.css" media="screen" rel="stylesheet" type="text/css" />
+    <link href="prism.css" rel="stylesheet" />
+</head>
+
+<body>
+    <script src="prism.js"></script>
+    <div class="construction">
+        <p>
+            <h1>M_STEPRv1 - UW HCDE439 FINAL - DEREPSZ 2020</h1>
+            <hr><br>
+        </p>
+
+        <div class="line-numbers">
+
+            <pre><code class="language-arduino">// ******************************************************************
+// M_STEPRv1 - DEREPSZ 2020
+// UW HCDE439 FINAL
+//
+// ARDUINO_SLAVE
+//
+// Serial processing reference:
+// "Serial Input Basics" - Robin2
+// https://forum.arduino.cc/index.php?topic=396450
+// ******************************************************************
+
+// include array correlating MIDI note
+// values to wave period in microseconds
+#include "notePeriods.h"
+
+// define motor control pins
+#define stepPin1 2
+#define m1EnablePin 3
+
+// vars for processing serial data
+const byte numChars = 32;
+char receivedChars[numChars];
+boolean newData = false;
+int dataNumber = 0;
+
+// vars for note value and timing
+int currentNote = 0;
+unsigned long prevMicrosPeriod = 0;
+
+
+void setup() {
+    Serial1.begin(115200);                 // we want the fastest connection
+    Serial1.println("&lt;Arduino is ready>"); // let arduino_master know you're ready
+    pinMode(stepPin1, OUTPUT);             // initialize pins
+    pinMode(m1EnablePin, OUTPUT);
+}
+
+
+void loop() {
+
+    // *********************MOTOR TEST W/O SERIAL************************
+    // digitalWrite(m1EnablePin, 0);
+    // if ((micros() - prevMicrosPeriod >= 700)) {
+    //   prevMicrosPeriod += 700;
+    //   digitalWrite(stepPin1, HIGH);
+    //   digitalWrite(stepPin1, LOW);
+    // }
+    // ******************************************************************
+
+
+    recvWithEndMarker();  // func by Robin2 for processing serial data
+    updateNote();         // func by Robin2 (modified) for updating note
+
+
+    // ******************************************************************
+    // when ENABLE pin on A4988 driver is high, motor is off
+    // a note value of 0 is used to mute the motor output
+    // ******************************************************************
+
+    if (notePeriods[currentNote] == 0) {
+        digitalWrite(m1EnablePin, 1);
+    }
+    else {
+        digitalWrite(m1EnablePin, 0);
+    }
+
+
+    // ******************************************************************
+    // when STEP pin on driver is high, motor advances one step
+    // this advances motor one step every time the period length
+    // of the current note has passed, producing the desired frequency
+    // ******************************************************************
+    
+    if ((micros() - prevMicrosPeriod >= notePeriods[currentNote])) {
+        prevMicrosPeriod += notePeriods[currentNote];
+        digitalWrite(stepPin1, HIGH);
+        digitalWrite(stepPin1, LOW);
+    }
+}
+
+
+void recvWithEndMarker() {
+
+    // ********************************************************************
+    // recvWithEndMarker() function by Robin2 (unmodified)
+    // an array is used to store incoming serial data while checking for end marker.
+    // ndx is used to track position in array, endMarker signals the message is
+    // complete, rc holds the incoming data. if rc is not the endMarker, it is stored
+    // in an array, with an index adjusting accordingly. when rc equals the endMarker
+    // (else condition), '\0' is printed to the current index, terminating the string,
+    // and newData is set to true, cueing the updateNote function
+    // the reason we have set this up this way is because arduino most readily transmits
+    // serial messages as string. this was found to be the fastest way to receive an
+    // integer so as to not upset the timing of the motor
+    // ********************************************************************
+
+    static byte ndx = 0;
+    char endMarker = '\n';
+    char rc;
+
+    if (Serial1.available() > 0) {
+        rc = Serial1.read();
+
+        if (rc != endMarker) {
+            receivedChars[ndx] = rc;
+            ndx++;
+            if (ndx >= numChars) {
+            ndx = numChars - 1;
+            }
+        }
+        else {
+            receivedChars[ndx] = '\0';
+            ndx = 0;
+            newData = true;
+        }
+    }
+}
+
+
+void updateNote() {
+
+    // ********************************************************************
+    // updateNote() modified function by Robin2
+    // this function simply updates our note value when a string is complete
+    // atoi() is a built in function that converts a string to an integer
+    // ********************************************************************
+
+    if (newData == true) {
+        currentNote = atoi(receivedChars);
+        newData = false;
+    }
+}</code></pre>
+
+        </div>
+        <p><br>
+            <hr>
+            <h2><a href="finalindex.html">main</a> :
+                <a href="finaldoc.html">doc</a> :
+                <a href="finalvideo.html">demo</a> :
+                <a href="finaldev.html">dev</a> : code :
+                <a href="codemaster.html">master</a> :
+                slave :
+                <a href="codeperiods.html">periods</a>
+            </h2>
+        </p>
+
+    </div>
+
+</body>
+
+</html>

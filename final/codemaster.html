@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>HCDE439 - DEREPSZ 2020</title>
+    <link href="finalstyle.css" media="screen" rel="stylesheet" type="text/css" />
+    <link href="prism.css" rel="stylesheet" />
+</head>
+
+<body>
+    <script src="prism.js"></script>
+    <div class="construction">
+        <p>
+            <h1>M_STEPRv1 - UW HCDE439 FINAL - DEREPSZ 2020</h1>
+            <hr><br>
+        </p>
+        <div class="line-numbers">
+
+            <pre><code class="language-arduino">// ******************************************************************
+    // M_STEPRv1 - DEREPSZ 2020
+    // UW HCDE439 FINAL
+    //
+    // ARDUINO_MASTER
+    //
+    // References:
+    // Potentiometer Smoothing: https://www.arduino.cc/en/tutorial/smoothing
+    // 74HC595 Shift Register: https://lastminuteengineers.com/74hc595-shift-register-arduino-tutorial/
+    // ******************************************************************
+    
+    // initialize display using adafruit library
+    #include &lt;Wire.h>
+    #include &lt;Adafruit_SSD1306.h>
+    Adafruit_SSD1306 display(128, 64, &Wire, -1);
+    #define OLED_ADDR   0x3C
+    
+    // constants for digital & analog pins
+    #define playSwitchPin 2
+    #define latchPin 10
+    #define dataPin 11
+    #define clockPin 12
+    const int tunePotPin = A0;
+    const int timePotPin = A1;
+    const int buttonsPin = A2;
+    
+    // variables for analogRead smoothing
+    const int numberReadings = 5;
+    int timePotReadings[numberReadings];
+    int timeReadIndex = 0;
+    int timePotTotal = 0;
+    int timePotAvg = 0;
+    int tunePotReadings[numberReadings];
+    int tuneReadIndex = 0;
+    int tunePotTotal = 0;
+    int tunePotAvg = 0;
+    
+    // arrays for holding note values and associated information for display
+    // the * before the names is a pointer - basically this is an array of arrays
+    byte noteArray[9];
+    char *nameArray[] = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+    char *stepCharArray[9];
+    byte stepRegisterArray[9];
+    
+    // variables for control
+    int buttonValue;
+    byte buttonPress = 1;
+    byte lastButtonPress;
+    int tunePotVal;
+    byte tunePotTracked;
+    int timePotVal;
+    
+    // variables used for sequencer
+    unsigned long prevMillisStep = 0;
+    int BPM = 120;
+    unsigned int beatDuration = 500;
+    byte stepNumber = 1;
+    byte playState;
+    
+    byte shiftBit; // used for shift register
+    
+    void setup() {
+        for (byte i = 1; i &lt; 9; i ++) { // init note array
+            noteArray[i] = i + 55;
+        }
+        Serial1.begin(115200); 
+        while (!Serial1) {} // init serial and wait for slave
+    
+        // set pins
+        pinMode(playSwitchPin, INPUT_PULLUP);
+        pinMode(latchPin, OUTPUT);
+        pinMode(dataPin, OUTPUT);
+        pinMode(clockPin, OUTPUT);
+    
+        // initialize shift register
+        shiftBit = 0;
+        digitalWrite(latchPin, LOW);
+        shiftOut(dataPin, clockPin, MSBFIRST, shiftBit);
+        digitalWrite(latchPin, HIGH);
+    
+        // begin startup display sequence
+        display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDR);
+        display.clearDisplay();
+        display.setTextSize(2);
+        display.setTextColor(WHITE);
+        display.setCursor(0, 20);
+        display.println("UW HCDE439");
+        display.setTextSize(1);\
+        display.setCursor(25, 45);
+        display.println("DEREPSZ 2020");
+        display.display();
+        delay(3000);
+    
+        display.clearDisplay();
+        display.setCursor(35, 20);
+        display.print("Loading.");
+        display.display();
+        delay(1250);
+        display.clearDisplay();
+        display.setCursor(35, 20);
+        display.print("Loading..");
+        display.display();
+        delay(1250);
+        display.clearDisplay();
+        display.setCursor(35, 20);
+        display.print("Loading...");
+        display.display();
+        delay(1250);
+        
+        display.clearDisplay();
+        delay(1000);
+        display.setCursor(10, 20);
+        display.println("Ok Alexa,");
+        display.display();
+        delay(1000);
+        display.setCursor(10, 35);
+        display.println("turn it up to 11.");
+        display.display();
+        delay(3000);
+        display.clearDisplay();
+        display.display();
+        delay(750);
+    } 
+    
+    void loop() {
+    
+        // check for playState, control inputs, and update menu
+        playState = digitalRead(playSwitchPin);
+        readPots();
+        readButtons();
+        stepMenu();
+    
+        // change mode depending on playState switch
+        if (playState == 1) {
+            stepSeq();
+        }
+        if (playState == 0) {
+            liveKey();
+        }
+    }
+    
+    
+    void readPots() {
+    
+        // ******************************************************************
+        // smoothing is applied to both the tune (pitch) and time (BPM)
+        // potentiometers to encourage stable readings. this is accomplished
+        // by keeping a running average of analogRead'ings stored in an array.
+        // each main loop cycle advances an index based on a set number of
+        // readings, tracks a total value, and divides the total value by the
+        // number of readings. this average value is then mapped and
+        // constrained. the tune pot is mapped from 23-111 as these are the
+        // MIDI note values we want. the time pot is mapped from 10-330, the
+        // desired BPM values.
+        //
+        // since only one potentiometer is used, tunePotTracked is used to
+        // check whether the potentiometer matches the previous reading of the
+        // active button, and only then will it begin to respond.
+        // ******************************************************************
+    
+        tunePotTotal = tunePotTotal - tunePotReadings[tuneReadIndex];
+        tunePotReadings[tuneReadIndex] = analogRead(tunePotPin);
+        tunePotTotal = tunePotTotal + tunePotReadings[tuneReadIndex];
+        tuneReadIndex = timeReadIndex + 1;
+        if (tuneReadIndex >= numberReadings) {
+            tuneReadIndex = 0;
+        }
+        tunePotAvg = tunePotTotal / numberReadings;
+        tunePotVal = constrain(map(tunePotAvg, 0, 1023, 23, 111), 23, 111);
+        
+        if (tunePotTracked == 1 && tunePotVal != noteArray[buttonPress]) {
+            noteArray[buttonPress] = tunePotVal;
+        }
+        else if (tunePotTracked == 0 && abs(noteArray[buttonPress] - tunePotVal) &lt; 1) {
+            tunePotTracked = 1;
+            noteArray[buttonPress] = tunePotVal;
+        }
+        
+        timePotTotal = timePotTotal - timePotReadings[timeReadIndex];
+        timePotReadings[timeReadIndex] = analogRead(timePotPin);
+        timePotTotal = timePotTotal + timePotReadings[timeReadIndex];
+        timeReadIndex = timeReadIndex + 1;
+        if (timeReadIndex >= numberReadings) {
+            timeReadIndex = 0;
+        }
+        timePotAvg = timePotTotal / numberReadings;
+        
+        BPM = constrain(map(timePotAvg, 0, 1020, 10, 330), 10, 330);
+        beatDuration = 60000 / BPM / 2; // conversion for BPM - 8th note duration in millis
+    }
+        
+    
+    void readButtons() {
+    
+        // ******************************************************************
+        // eight buttons have been wired as a voltage divider to utilize only
+        // one analog input rather than eight digital ones. the appropriate
+        // analogRead values are determined empirically. using an if-else if
+        // series, the buttons are checked from high to low. when a button is
+        // pressed a variable saves the most recent button press, and makes
+        // tunePotTracked = 0 so that the newly called note is note suddenly
+        // changed by the current potentiometer reading
+        // ******************************************************************
+    
+        buttonValue = analogRead(buttonsPin);
+        if (buttonValue > 950) {
+            buttonPress = 1;
+            tunePotTracked = 0;
+        }
+        else if (buttonValue > 850) {
+            buttonPress = 2;
+            tunePotTracked = 0;
+        }
+        else if (buttonValue > 750) {
+            buttonPress = 3;
+            tunePotTracked = 0;
+        }
+        else if (buttonValue > 600) {
+            buttonPress = 4;
+            tunePotTracked = 0;
+        }
+        else if (buttonValue > 500) {
+            buttonPress = 5;
+            tunePotTracked = 0;
+        }
+        else if (buttonValue > 400) {
+            buttonPress = 6;
+            tunePotTracked = 0;
+        }
+        else if (buttonValue > 300) {
+            buttonPress = 7;
+            tunePotTracked = 0;
+        }
+        else if (buttonValue > 200) {
+            buttonPress = 8;
+            tunePotTracked = 0;
+        }
+    }
+        
+    void stepMenu() {
+        
+        // ******************************************************************
+        // because there are twelve notes to an octave, a modulus of twelve
+        // is applied to the current midi note value to establish the correct
+        // note. to find the register (or octave), the midi note value is divided
+        // by twelve, and then offset by -1. see notePeriods.h for reference.
+        // once these values are set, the currently menu will display information
+        // relevant to the most recent button press.
+        // ******************************************************************
+    
+        stepCharArray[buttonPress] = nameArray[noteArray[buttonPress] % 12];
+        stepRegisterArray[buttonPress] = noteArray[buttonPress] / 12 - 1;
+        
+        display.clearDisplay();
+        display.setTextSize(2);
+        display.setTextColor(WHITE);
+        display.setCursor(10, 0);
+        display.println("M_STEPRv1");
+            
+        display.setTextSize(1);
+        display.setCursor(20, 25);
+        display.print("MODE:");
+    
+        if (playState == 1) {
+            display.setCursor(70, 25);
+            display.print("SEQ");
+        }
+        else {
+            display.setCursor(70, 25);
+            display.print("KEY");
+        }
+        
+        display.setCursor(20, 40);
+        display.print("BPM: ");
+        display.setCursor(70, 40);
+        display.print(BPM);
+        
+        display.setCursor(20, 55);
+        display.print("STEP ");
+        display.print(buttonPress);
+        display.println(":");
+        display.setCursor(70, 55);
+        display.print(stepCharArray[buttonPress]);
+        display.setCursor(85, 55);
+        display.println(stepRegisterArray[buttonPress]);
+        display.display();
+    }
+    
+    
+    void stepSeq() {
+    
+        // ******************************************************************
+        // while in step sequencer mode, we want to advance our step based on
+        // the beatDuration, update the current step, and set the step number
+        // back to 1 if the step number exceeds 8. we also want to update the
+        // shift register so that the correct led lights. finally, we'll send
+        // the current note to the slave board so that it can cue the musak.
+        // ******************************************************************
+    
+        if (millis() - prevMillisStep >= beatDuration) {
+            prevMillisStep = millis();
+            stepNumber++;
+            if (stepNumber > 8) {
+            stepNumber = 1;
+            }
+            ledShift(stepNumber - 1);
+            Serial1.println(noteArray[stepNumber]);
+        }
+    }
+        
+        
+        
+    void liveKey() {
+    
+        // ******************************************************************
+        // in live mode, we are able to play the notes in any sequence or time,
+        // like a keyboard. if no button is pressed buttonValue &lt; 200 and the
+        // number zero is sent to the slave board, which interprets this as a
+        // mute command. if a button is pressed (making buttonValue greater
+        // than 200) the note associated with that button is sent to the slave
+        // board until the button is released. in this mode, the shift register
+        // lights the LED above the last button pressed.
+        // ******************************************************************
+    
+        if (buttonPress != lastButtonPress) {
+            ledShift(buttonPress - 1);
+            lastButtonPress = buttonPress;
+        }
+        if (buttonValue &lt; 200) {
+            Serial1.println(0);
+        }
+        else {
+            Serial1.println(noteArray[buttonPress]);
+        }
+    }
+        
+    
+    void ledShift(byte bitNumber) {
+    
+        // ******************************************************************
+        // the shift register essentially provides 8 digital out pins that are
+        // controlled by taking in a binary value from the arduino. when this
+        // function is called, first the shiftBit value is set to zero, which
+        // is sent to the shift register, zeroing out all pins and turning off
+        // all LEDs. immediately after, the function takes in the desired LED
+        // number, write a 1 to that the corresponding binary location using
+        // bitSet() to update shiftBit, which is then sent to the shift register,
+        // setting the associated pin high and turning on the LED.
+        // ******************************************************************
+            
+        shiftBit = 0;
+        
+        digitalWrite(latchPin, LOW);
+        shiftOut(dataPin, clockPin, MSBFIRST, shiftBit);
+        digitalWrite(latchPin, HIGH);
+        
+        bitSet(shiftBit, bitNumber);
+        digitalWrite(latchPin, LOW);
+        shiftOut(dataPin, clockPin, MSBFIRST, shiftBit);
+        digitalWrite(latchPin, HIGH);
+    }</code></pre>
+        </div>
+        <p><br>
+            <hr>
+            <h2><a href="finalindex.html">main</a> :
+                <a href="finaldoc.html">doc</a> :
+                <a href="finalvideo.html">demo</a> :
+                <a href="finalschematic.html">schematic</a> :
+                <a href="finaldev.html">dev</a> : code :
+                master :
+                <a href="codeslave.html">slave</a> :
+                <a href="codeperiods.html">periods</a>
+            </h2>
+        </p>
+
+    </div>
+
+</body>
+
+</html>
