@@ -16,7 +16,7 @@ html, body {
 
 h1,h2,h3,h4 {
   font-family: 'helvetica', 'arial', 'sans';
-  color: #FOF;
+  color: #F0F;
   }
 
 
@@ -67,8 +67,6 @@ a {
     padding: 0px 30px 30px 30px;
 }
 
-.widebody a {
-}
 
 .widebody a:hover {
   background: #F06;
