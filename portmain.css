@@ -1,0 +1,38 @@
+.header {
+    padding: 80px; /* some padding */
+    text-align: center; /* center the text */
+    background: #1A3047; /* green background */
+    color: white; /* white text color */
+  }
+  
+  /* Increase the font size of the <h1> element */
+  .header h1 {
+    font-size: 40px;
+  }
+
+  /* Ensure proper sizing */
+* {
+    box-sizing: border-box;
+  }
+  
+  /* Column container */
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    border: 2px;
+  }
+  
+  /* Create two unequal columns that sits next to each other */
+  /* Sidebar/left column */
+  .side {
+    flex: 30%; /* Set the width of the sidebar */
+    background-color: #f1f1f1; /* Grey background color */
+    padding: 20px; /* Some padding */
+  }
+  
+  /* Main column */
+  .main {
+    flex: 70%; /* Set the width of the main content */
+    background-color: white; /* White background color */
+    padding: 20px; /* Some padding */
+  }
