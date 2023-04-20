@@ -10,6 +10,7 @@ main();
 // start here
 //
 function main() {
+  
   const canvas = document.querySelector("#glcanvas");
   // Initialize the GL context
   const gl = canvas.getContext("webgl");
@@ -112,7 +113,7 @@ function main() {
 
   // Draw the scene repeatedly
   function render(now) {
-    now *= 0.003; // convert to seconds
+    now *= 0.001; // convert to seconds
     deltaTime = now - then;
     then = now;
 

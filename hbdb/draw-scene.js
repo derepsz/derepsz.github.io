@@ -1,5 +1,11 @@
 function drawScene(gl, programInfo, buffers, texture, cubeRotation) {
-    gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
+    let bfrequency = 0.0013;
+    let bamplitude = 0.5;
+    var bt = Math.sin(Date.now() * bfrequency) * bamplitude +0.5;
+    let rfrequency = 0.0014;
+    let ramplitude = 0.5;
+    var rt = Math.cos(Date.now() * rfrequency) * ramplitude + 0.5;
+    gl.clearColor(rt, 0.0, bt, 1.0); // Clear to black, fully opaque
     gl.clearDepth(1.0); // Clear everything
     gl.enable(gl.DEPTH_TEST); // Enable depth testing
     gl.depthFunc(gl.LEQUAL); // Near things obscure far things
@@ -29,31 +35,30 @@ function drawScene(gl, programInfo, buffers, texture, cubeRotation) {
     // the center of the scene.
     const modelViewMatrix = mat4.create();
   
+    
+    mat4.rotate(
+      modelViewMatrix, // destination matrix
+      modelViewMatrix, // matrix to rotate
+      cubeRotation, // amount to rotate in radians
+      [0, 0, 1]
+    ); // axis to rotate around (Z)
+    let zf = 0.4;
+    let za =  Math.sin(Date.now()*0.3) + 10000000;
+    var zt = Math.sin(Date.now() * rfrequency) * ramplitude+10;
     // Now move the drawing position a bit to where we want to
     // start drawing the square.
     mat4.translate(
       modelViewMatrix, // destination matrix
       modelViewMatrix, // matrix to translate
-      [-0.0, 0.0, -10.0]
+      [-0.0, 0.0, -zt]
     ); // amount to translate
   
+
     mat4.rotate(
       modelViewMatrix, // destination matrix
       modelViewMatrix, // matrix to rotate
-      cubeRotation, // amount to rotate in radians
-      [0, 0, 2]
-    ); // axis to rotate around (Z)
-    mat4.rotate(
-      modelViewMatrix, // destination matrix
-      modelViewMatrix, // matrix to rotate
-      cubeRotation * 0.8, // amount to rotate in radians
+      cubeRotation * 1.0, // amount to rotate in radians
       [0, 1, 0]
-    ); // axis to rotate around (Y)
-    mat4.rotate(
-      modelViewMatrix, // destination matrix
-      modelViewMatrix, // matrix to rotate
-      cubeRotation * 0.3, // amount to rotate in radians
-      [1, 1, 0]
     ); // axis to rotate around (X)
   
     const normalMatrix = mat4.create();
@@ -102,13 +107,35 @@ function drawScene(gl, programInfo, buffers, texture, cubeRotation) {
     mat4.translate(
         modelViewMatrix, // destination matrix
         modelViewMatrix, // matrix to translate
-        [-0.0, 7, -4]
+        [-0.0, 0, 0]
     ); // amount to translate
+    {
+        const vertexCount = 36;
+        const type = gl.UNSIGNED_SHORT;
+        const offset = 0;
+        gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
+    }
+    
     for (let i = 0; i < 12; i++) {
         mat4.translate(
             modelViewMatrix, // destination matrix
             modelViewMatrix, // matrix to translate
-            [-0.0, 1, 1]
+            [-0.0, 0, 0]
+        ); // amount to translate
+        mat4.rotate(modelViewMatrix, modelViewMatrix, 3.14/6, [0, 0, 1]);
+
+        {
+            const vertexCount = 36;
+            const type = gl.UNSIGNED_SHORT;
+            const offset = 0;
+            gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
+        }
+    for (let i = 0; i < 12; i++) {
+        
+        mat4.translate(
+            modelViewMatrix, // destination matrix
+            modelViewMatrix, // matrix to translate
+            [-0.0, 3, 1]
         ); // amount to translate
     
         mat4.rotate(modelViewMatrix, modelViewMatrix, 3.14/6, [1, 0, 0]);
@@ -124,7 +151,8 @@ function drawScene(gl, programInfo, buffers, texture, cubeRotation) {
             const offset = 0;
             gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
         }
-        for (let i = 0; i < 10; i++) {}
+
+    }
     }
       
     // {
