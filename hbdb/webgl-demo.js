@@ -1,18 +1,17 @@
 import { initBuffers } from "./init-buffers.js";
 import { drawScene } from "./draw-scene.js";
 
+let cubeRotation = 0.0;
+let deltaTime = 0;
+
 main();
 
 //
 // start here
 //
-let cubeRotation = 0.0;
-let deltaTime = 0;
-
 function main() {
   const canvas = document.querySelector("#glcanvas");
   // Initialize the GL context
-  /** @type {WebGLRenderingContext} */
   const gl = canvas.getContext("webgl");
 
   // Only continue if WebGL is available and working
@@ -29,36 +28,50 @@ function main() {
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   // Vertex shader program
-  // Vertex shader program
 
   const vsSource = `
   attribute vec4 aVertexPosition;
+  attribute vec3 aVertexNormal;
   attribute vec2 aTextureCoord;
 
+  uniform mat4 uNormalMatrix;
   uniform mat4 uModelViewMatrix;
   uniform mat4 uProjectionMatrix;
 
   varying highp vec2 vTextureCoord;
+  varying highp vec3 vLighting;
 
   void main(void) {
     gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
     vTextureCoord = aTextureCoord;
+
+    // Apply lighting effect
+
+    highp vec3 ambientLight = vec3(0.3, 0.3, 0.3);
+    highp vec3 directionalLightColor = vec3(1, 1, 1);
+    highp vec3 directionalVector = normalize(vec3(0.85, 0.8, 0.75));
+
+    highp vec4 transformedNormal = uNormalMatrix * vec4(aVertexNormal, 1.0);
+
+    highp float directional = max(dot(transformedNormal.xyz, directionalVector), 0.0);
+    vLighting = ambientLight + (directionalLightColor * directional);
   }
 `;
 
+  // Fragment shader program
 
+  const fsSource = `
+  varying highp vec2 vTextureCoord;
+  varying highp vec3 vLighting;
 
-const fsSource = `
-    varying highp vec2 vTextureCoord;
+  uniform sampler2D uSampler;
 
-    uniform sampler2D uSampler;
+  void main(void) {
+    highp vec4 texelColor = texture2D(uSampler, vTextureCoord);
 
-    void main(void) {
-      gl_FragColor = texture2D(uSampler, vTextureCoord);
-    }
-  `;
-
-
+    gl_FragColor = vec4(texelColor.rgb * vLighting, texelColor.a);
+  }
+`;
 
   // Initialize a shader program; this is where all the lighting
   // for the vertices and so forth is established.
@@ -72,16 +85,19 @@ const fsSource = `
     program: shaderProgram,
     attribLocations: {
       vertexPosition: gl.getAttribLocation(shaderProgram, "aVertexPosition"),
+      vertexNormal: gl.getAttribLocation(shaderProgram, "aVertexNormal"),
       textureCoord: gl.getAttribLocation(shaderProgram, "aTextureCoord"),
     },
     uniformLocations: {
-      projectionMatrix: gl.getUniformLocation(shaderProgram, "uProjectionMatrix"),
+      projectionMatrix: gl.getUniformLocation(
+        shaderProgram,
+        "uProjectionMatrix"
+      ),
       modelViewMatrix: gl.getUniformLocation(shaderProgram, "uModelViewMatrix"),
+      normalMatrix: gl.getUniformLocation(shaderProgram, "uNormalMatrix"),
       uSampler: gl.getUniformLocation(shaderProgram, "uSampler"),
     },
   };
-  
-
 
   // Here's where we call the routine that builds all the
   // objects we'll be drawing.
@@ -92,17 +108,15 @@ const fsSource = `
   // Flip image pixels into the bottom-to-top order that WebGL expects.
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
-
-  // Draw the scene
   let then = 0;
 
   // Draw the scene repeatedly
   function render(now) {
-    now *= 0.001; // convert to seconds
+    now *= 0.003; // convert to seconds
     deltaTime = now - then;
     then = now;
 
-    drawScene(gl, programInfo, buffers, cubeRotation);
+    drawScene(gl, programInfo, buffers, texture, cubeRotation);
     cubeRotation += deltaTime;
 
     requestAnimationFrame(render);
@@ -166,7 +180,6 @@ function loadShader(gl, type, source) {
   return shader;
 }
 
-
 //
 // Initialize a texture and load an image.
 // When the image finished loading copy it into the texture.
@@ -213,7 +226,7 @@ function loadTexture(gl, url) {
     );
 
     // WebGL1 has different requirements for power of 2 images
-    // vs. non power of 2 images so check if the image is a
+    // vs non power of 2 images so check if the image is a
     // power of 2 in both dimensions.
     if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
       // Yes, it's a power of 2. Generate mips.
