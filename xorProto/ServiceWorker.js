@@ -1,4 +1,4 @@
-const cacheName = "DefaultCompany-inputSys-0.1.0";
+const cacheName = "XOR-Coliseum Proto-0.1.0";
 const contentToCache = [
     "Build/build-web.loader.js",
     "Build/build-web.framework.js.unityweb",
