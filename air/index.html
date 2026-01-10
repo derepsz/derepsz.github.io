@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Derek's Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-white text-black font-mono">
+    
+    <!-- Navigation - pinned to top -->
+    <nav class="fixed top-0 left-0 right-0 bg-white border-b-2 border-black z-50">
+        <div class="flex w-full">
+            <a href="#home" class="nav-link flex-1 text-center py-4 border-r-2 border-black hover:bg-black hover:text-white transition-colors">Home</a>
+            <a href="#works" class="nav-link flex-1 text-center py-4 border-r-2 border-black hover:bg-black hover:text-white transition-colors">Works</a>
+            <a href="#services" class="nav-link flex-1 text-center py-4 hover:bg-black hover:text-white transition-colors">Services</a>
+        </div>
+    </nav>
+
+    <!-- Works Sub-Navigation - only visible in works section -->
+    <nav id="works-subnav" class="fixed top-[57px] left-0 right-0 bg-white border-b-2 border-black z-40 opacity-0 invisible transition-opacity duration-300">
+        <div class="flex w-full h-7">
+            <a href="#work-1" class="work-nav-link flex-1 text-center py-1 border-r-2 border-black hover:bg-black hover:text-white transition-colors text-sm">0</a>
+            <a href="#work-2" class="work-nav-link flex-1 text-center py-1 border-r-2 border-black hover:bg-black hover:text-white transition-colors text-sm">1</a>
+            <a href="#work-3" class="work-nav-link flex-1 text-center py-1 border-r-2 border-black hover:bg-black hover:text-white transition-colors text-sm">2</a>
+            <a href="#work-4" class="work-nav-link flex-1 text-center py-1 border-r-2 border-black hover:bg-black hover:text-white transition-colors text-sm">3</a>
+            <a href="#work-5" class="work-nav-link flex-1 text-center py-1 border-r-2 border-black hover:bg-black hover:text-white transition-colors text-sm">4</a>
+            <a href="#work-6" class="work-nav-link flex-1 text-center py-1 border-r-2 border-black hover:bg-black hover:text-white transition-colors text-sm">5</a>
+            <a href="#work-7" class="work-nav-link flex-1 text-center py-1 border-r-2 border-black hover:bg-black hover:text-white transition-colors text-sm">6</a>
+            <a href="#work-8" class="work-nav-link flex-1 text-center py-1 border-r-2 border-black hover:bg-black hover:text-white transition-colors text-sm">7</a>
+            <a href="#work-9" class="work-nav-link flex-1 text-center py-1 border-r-2 border-black hover:bg-black hover:text-white transition-colors text-sm">8</a>
+            <a href="#work-10" class="work-nav-link flex-1 text-center py-1 hover:bg-black hover:text-white transition-colors text-sm">9</a>
+        </div>
+    </nav>
+
+    <!-- Main content -->
+    <main class="pt-16">
+        
+        <!-- HOME SECTION -->
+        <section id="home" class="overflow-y-auto p-8 md:p-16">
+            <h1 class="text-4xl md:text-6xl mb-8">Welcome</h1>
+            <p class="text-lg md:text-xl max-w-2xl">
+                This is the home section. Add your splash content here.
+            </p>
+        </section>
+
+        <!-- WORKS SECTION -->
+        <section id="works" class="overflow-y-auto p-8 md:p-16" style="padding-top: 5rem;">
+            <h1 class="text-4xl md:text-6xl mb-8">Works</h1>
+            
+            <!-- Works will be rendered here by JavaScript -->
+            <div id="works-container" class="mt-8 space-y-16 pb-16">
+                <!-- Populated by renderWorks() -->
+            </div>
+        </section>
+
+        <!-- SERVICES SECTION -->
+        <section id="services" class="overflow-y-auto p-8 md:p-16">
+            <h1 class="text-4xl md:text-6xl mb-8">Services</h1>
+            <p class="text-lg md:text-xl max-w-2xl">
+                Engineering services for artists in residency.
+            </p>
+        </section>
+
+    </main>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
