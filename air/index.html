@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Derek's Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        main {
+            position: relative;
+            height: 100%;
+        }
+        
+        section {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+        }
+        
+        section.active {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body class="bg-white text-black font-mono">
+    
+    <!-- Navigation - pinned to top -->
+    <nav class="fixed top-0 left-0 right-0 bg-white border-b-2 border-black z-50">
+        <div class="flex">
+            <a href="#home" class="nav-link px-6 py-4 border-r-2 border-black hover:bg-black hover:text-white transition-colors">Home</a>
+            <a href="#works" class="nav-link px-6 py-4 border-r-2 border-black hover:bg-black hover:text-white transition-colors">Works</a>
+            <a href="#services" class="nav-link px-6 py-4 hover:bg-black hover:text-white transition-colors">Services</a>
+        </div>
+    </nav>
+
+    <!-- Main content -->
+    <main class="pt-16">
+        
+        <!-- HOME SECTION -->
+        <section id="home" class="overflow-y-auto p-8 md:p-16">
+            <h1 class="text-4xl md:text-6xl mb-8">Welcome</h1>
+            <p class="text-lg md:text-xl max-w-2xl">
+                This is the home section. Add your splash content here.
+            </p>
+        </section>
+
+        <!-- WORKS SECTION -->
+        <section id="works" class="overflow-y-auto p-8 md:p-16">
+            <h1 class="text-4xl md:text-6xl mb-8">Works</h1>
+            
+            <!-- Works will be rendered here by JavaScript -->
+            <div id="works-container" class="mt-8 space-y-16 pb-16">
+                <!-- Populated by renderWorks() -->
+            </div>
+        </section>
+
+        <!-- SERVICES SECTION -->
+        <section id="services" class="overflow-y-auto p-8 md:p-16">
+            <h1 class="text-4xl md:text-6xl mb-8">Services</h1>
+            <p class="text-lg md:text-xl max-w-2xl">
+                Engineering services for artists in residency.
+            </p>
+        </section>
+
+    </main>
+
+    <script>
+        // Define your works here - easy to edit!
+        const works = [
+            {
+                id: 'work-1',
+                title: 'Project Title One',
+                type: 'image',
+                media: './media/example1.jpg',
+                description: 'Description of the first project goes here. You can write as much or as little as you want.'
+            },
+            {
+                id: 'work-2',
+                title: 'Audio Piece',
+                type: 'audio',
+                media: './media/ambient.mp3',
+                description: 'An audio work exploring spatial sound.'
+            },
+            {
+                id: 'work-3',
+                title: 'Video Documentation',
+                type: 'video',
+                media: './media/demo-clip.mp4',
+                description: 'Video documentation of an installation.'
+            },
+            {
+                id: 'work-4',
+                title: 'Slideshow Example',
+                type: 'slideshow',
+                media: [
+                    './media/slide1.jpg',
+                    './media/slide2.jpg',
+                    './media/slide3.jpg'
+                ],
+                description: 'A series of images from the project.'
+            },
+            // Add more works here...
+            {
+                id: 'work-5',
+                title: 'Work Five',
+                type: 'image',
+                media: './media/example5.jpg',
+                description: 'Fifth project description.'
+            },
+            {
+                id: 'work-6',
+                title: 'Work Six',
+                type: 'image',
+                media: './media/example6.jpg',
+                description: 'Sixth project description.'
+            },
+            {
+                id: 'work-7',
+                title: 'Work Seven',
+                type: 'image',
+                media: './media/example7.jpg',
+                description: 'Seventh project description.'
+            },
+            {
+                id: 'work-8',
+                title: 'Work Eight',
+                type: 'image',
+                media: './media/example8.jpg',
+                description: 'Eighth project description.'
+            },
+            {
+                id: 'work-9',
+                title: 'Work Nine',
+                type: 'image',
+                media: './media/example9.jpg',
+                description: 'Ninth project description.'
+            },
+            {
+                id: 'work-10',
+                title: 'Work Ten',
+                type: 'image',
+                media: './media/example10.jpg',
+                description: 'Tenth project description.'
+            }
+        ];
+
+        // Render media based on type
+        function renderMedia(work) {
+            switch(work.type) {
+                case 'image':
+                    return `<img src="${work.media}" alt="${work.title}" class="w-full max-w-2xl border-2 border-black">`;
+                
+                case 'audio':
+                    return `
+                        <audio controls class="w-full max-w-2xl">
+                            <source src="${work.media}" type="audio/mpeg">
+                        </audio>
+                    `;
+                
+                case 'video':
+                    return `
+                        <video controls class="w-full max-w-2xl border-2 border-black">
+                            <source src="${work.media}" type="video/mp4">
+                        </video>
+                    `;
+                
+                case 'slideshow':
+                    const slideshowId = `slideshow-${work.id}`;
+                    return `
+                        <div class="max-w-2xl">
+                            <div id="${slideshowId}" class="border-2 border-black mb-2">
+                                <img src="${work.media[0]}" alt="${work.title}" class="w-full slideshow-img">
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="prevSlide('${slideshowId}', ${JSON.stringify(work.media)})" 
+                                        class="px-4 py-2 border-2 border-black hover:bg-black hover:text-white">←</button>
+                                <button onclick="nextSlide('${slideshowId}', ${JSON.stringify(work.media)})" 
+                                        class="px-4 py-2 border-2 border-black hover:bg-black hover:text-white">→</button>
+                            </div>
+                        </div>
+                    `;
+                
+                default:
+                    return '';
+            }
+        }
+
+        // Render all works
+        function renderWorks() {
+            const container = document.getElementById('works-container');
+            container.innerHTML = works.map(work => `
+                <div id="${work.id}" class="border-b-2 border-black pb-16 last:border-b-0">
+                    <h2 class="text-2xl md:text-4xl mb-6">${work.title}</h2>
+                    <div class="mb-6">
+                        ${renderMedia(work)}
+                    </div>
+                    <p class="text-base md:text-lg max-w-2xl">${work.description}</p>
+                </div>
+            `).join('');
+            
+            // Initialize slideshow states
+            works.filter(w => w.type === 'slideshow').forEach(work => {
+                const slideshowId = `slideshow-${work.id}`;
+                if (!window.slideshowStates) window.slideshowStates = {};
+                window.slideshowStates[slideshowId] = 0;
+            });
+        }
+
+        // Slideshow navigation
+        function nextSlide(slideshowId, images) {
+            if (!window.slideshowStates[slideshowId]) window.slideshowStates[slideshowId] = 0;
+            window.slideshowStates[slideshowId] = (window.slideshowStates[slideshowId] + 1) % images.length;
+            const img = document.querySelector(`#${slideshowId} img`);
+            img.src = images[window.slideshowStates[slideshowId]];
+        }
+
+        function prevSlide(slideshowId, images) {
+            if (!window.slideshowStates[slideshowId]) window.slideshowStates[slideshowId] = 0;
+            window.slideshowStates[slideshowId] = (window.slideshowStates[slideshowId] - 1 + images.length) % images.length;
+            const img = document.querySelector(`#${slideshowId} img`);
+            img.src = images[window.slideshowStates[slideshowId]];
+        }
+
+        // Handle section navigation
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show the target section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+        }
+
+        // Listen for hash changes
+        window.addEventListener('hashchange', function() {
+            const hash = window.location.hash.substring(1); // Remove the #
+            if (hash) {
+                showSection(hash);
+            }
+        });
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            renderWorks();
+            const hash = window.location.hash.substring(1);
+            showSection(hash || 'home'); // Default to home if no hash
+        });
+    </script>
+
+</body>
+</html>
