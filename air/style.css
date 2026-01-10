@@ -24,6 +24,7 @@ section {
 section.active {
     opacity: 1;
     visibility: visible;
+    padding: 20%;
 }
 
 /* Show works subnav only when works section is active */
