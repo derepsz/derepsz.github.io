@@ -70,14 +70,15 @@ function renderMediaItem(item, workId) {
         case 'image':
             const imageId = `img-${workId}-${Math.random().toString(36).slice(2)}`;
             return `
-                <img 
-                    id="${imageId}"
-                    src="${item.path}" 
-                    alt="" 
-                    class="lightbox-trigger border-2 border-black cursor-pointer hover:opacity-80 transition-opacity"
-                    style="height: 350px; width: auto; object-fit: cover;"
-                    data-full-src="${item.path}"
-                >
+                <div class="w-full max-w-2xl border-2 border-black overflow-hidden" style="aspect-ratio: 4/3;">
+                    <img 
+                        id="${imageId}"
+                        src="${item.path}" 
+                        alt="" 
+                        class="lightbox-trigger w-full h-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                        data-full-src="${item.path}"
+                    >
+                </div>
             `;
 
         case 'audio':
@@ -97,28 +98,29 @@ function renderMediaItem(item, workId) {
         case 'slideshow': {
             const slideshowId = `slideshow-${workId}-${Math.random().toString(36).slice(2)}`;
 
-            // initialize state
-            if (!window.slideshowStates) window.slideshowStates = {};
-            window.slideshowStates[slideshowId] = { index: 0, images: item.path };
-
             return `
                 <div class="max-w-2xl">
-                    <div id="${slideshowId}" class="border-2 border-black mb-2 relative flex items-center justify-center" style="min-height: 400px;">
-                        <img 
-                            src="${item.path[0]}" 
-                            class="w-full h-full object-contain"
-                        >
+                    <div class="relativeoverflow-hidden" style="aspect-ratio: 4/3;">
+                        <div id="${slideshowId}" class="flex overflow-x-scroll scroll-smooth snap-x snap-mandatory scrollbar-hide w-full h-full">
+                            ${item.path.map(imgPath => `
+                                <img 
+                                    src="${imgPath}" 
+                                    class="pr-5 lightbox-trigger flex-shrink-0 w-full h-full object-contain snap-center cursor-pointer hover:opacity-80 transition-opacity"
+                                    data-full-src="${imgPath}"
+                                >
+                            `).join('')}
+                        </div>
                     </div>
-                    <div class="flex gap-2">
+                    <div class="flex gap-2 mt-2">
                         <button
                             data-slideshow="${slideshowId}"
                             data-direction="prev"
-                            class="slideshow-btn px-4 py-2 border-2 border-black hover:bg-black hover:text-white"
+                            class="slideshow-nav-btn px-4 py-2 border-2 border-black hover:bg-black hover:text-white transition-colors"
                         >←</button>
                         <button
                             data-slideshow="${slideshowId}"
                             data-direction="next"
-                            class="slideshow-btn px-4 py-2 border-2 border-black hover:bg-black hover:text-white"
+                            class="slideshow-nav-btn px-4 py-2 border-2 border-black hover:bg-black hover:text-white transition-colors"
                         >→</button>
                     </div>
                 </div>
@@ -185,19 +187,16 @@ function closeLightbox() {
 // ===============================
 
 function navigateSlideshow(slideshowId, direction) {
-    if (!window.slideshowStates || !window.slideshowStates[slideshowId]) return;
+    const container = document.getElementById(slideshowId);
+    if (!container) return;
 
-    const state = window.slideshowStates[slideshowId];
-    const images = state.images;
-
+    const scrollAmount = container.clientWidth;
+    
     if (direction === 'next') {
-        state.index = (state.index + 1) % images.length;
+        container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
     } else {
-        state.index = (state.index - 1 + images.length) % images.length;
+        container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
     }
-
-    const img = document.querySelector(`#${slideshowId} img`);
-    if (img) img.src = images[state.index];
 }
 
 
@@ -277,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Slideshow button event delegation
     document.addEventListener('click', (e) => {
-        if (e.target.classList.contains('slideshow-btn')) {
+        if (e.target.classList.contains('slideshow-nav-btn')) {
             const slideshowId = e.target.getAttribute('data-slideshow');
             const direction = e.target.getAttribute('data-direction');
             navigateSlideshow(slideshowId, direction);
