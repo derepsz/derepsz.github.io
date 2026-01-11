@@ -1,0 +1,35 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+main {
+    position: relative;
+    height: 100%;
+}
+
+section {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--transition-fast, 0.3s ease);
+}
+
+section.active {
+    opacity: 1;
+    visibility: visible;
+    padding: 20%;
+}
+
+/* Show works subnav only when works section is active */
+section#works.active ~ #works-subnav,
+#works-subnav.show {
+    opacity: 1;
+    visibility: visible;
+}

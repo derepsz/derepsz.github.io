@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Colors - Black/White Theme */
+    --color-primary: #ffffff;
+    --color-secondary: #000000;
+    --color-border: #cb3b3b;
+
+    /* Typography */
+    --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+    /* Spacing */
+    --spacing-nav: 20rem;
+    --spacing-subnav: 1.75rem;
+    --spacing-section-offset: 8rem;
+
+    /* Borders */
+    --border-width: 2px;
+
+    /* Heights */
+    --height-subnav: 1.75rem;
+    --height-footer: 1.5rem;
+
+    /* Transitions */
+    --transition-fast: 300ms ease;
+  }
+}
+
+@layer components {
+  /* Navigation link pattern - reduces repetition */
+  .nav-link-base {
+    @apply flex-1 text-center transition-colors;
+    @apply border-secondary hover:bg-secondary hover:text-primary;
+  }
+
+  /* Media container pattern */
+  .media-container {
+    @apply w-full max-w-2xl border-2 border-border;
+  }
+
+  /* Button pattern */
+  .btn-base {
+    @apply px-4 py-2 border-2 border-border;
+    @apply hover:bg-secondary hover:text-primary;
+  }
+}

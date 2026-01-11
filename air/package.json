@@ -1,0 +1,19 @@
+{
+  "name": "air",
+  "version": "1.0.0",
+  "description": "",
+  "main": "tailwind.config.js",
+  "scripts": {
+    "dev": "npm run build:css -- --watch",
+    "build": "npm run build:css && npm run copy:assets",
+    "build:css": "npx tailwindcss -i ./src/input.css -o ./dist/output.css --minify",
+    "copy:assets": "cp src/style.css dist/ && cp src/script.js dist/"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "tailwindcss": "^3.4.19"
+  }
+}
