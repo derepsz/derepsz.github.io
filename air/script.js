@@ -124,8 +124,20 @@ function renderMediaItem(item, workId) {
                             >→</button>
                         </div>
                     </div>
+
+                    <div class="slideshow__filmstrip">
+                        ${item.path.map(imgPath => `
+                            <img
+                                src="${imgPath}"
+                                class="slideshow__thumb"
+                                alt=""
+                                aria-hidden="true"
+                            >
+                        `).join('')}
+                    </div>
                 </div>
             `;
+
 
         }
 

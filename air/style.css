@@ -377,7 +377,6 @@ section#works.active ~ .works-subnav {
     transform: translateY(-50%) scale(1.1);
 }
 
-
 .slideshow__btn--prev {
     left: 0.75rem;
 }
@@ -385,6 +384,24 @@ section#works.active ~ .works-subnav {
 .slideshow__btn--next {
     right: 0.75rem;
 }
+
+.slideshow__filmstrip {
+    display: flex;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+    overflow: hidden;
+    opacity: 0.6;
+}
+
+.slideshow__thumb {
+    height: 2.25rem;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    flex-shrink: 0;
+
+    filter: grayscale(0.2);
+}
+
 
 
 /* ===============================================
