@@ -70,12 +70,12 @@ function renderMediaItem(item, workId) {
         case 'image':
             const imageId = `img-${workId}-${Math.random().toString(36).slice(2)}`;
             return `
-                <div class="w-full max-w-2xl border-2 border-black overflow-hidden" style="aspect-ratio: 4/3;">
-                    <img 
+                <div class="media media--image">
+                    <img
                         id="${imageId}"
-                        src="${item.path}" 
-                        alt="" 
-                        class="lightbox-trigger w-full h-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                        src="${item.path}"
+                        alt=""
+                        class="media__img media__img--lightbox"
                         data-full-src="${item.path}"
                     >
                 </div>
@@ -83,14 +83,14 @@ function renderMediaItem(item, workId) {
 
         case 'audio':
             return `
-                <audio controls class="w-full max-w-2xl">
+                <audio controls class="media media--audio">
                     <source src="${item.path}" type="audio/mpeg">
                 </audio>
             `;
 
         case 'video':
             return `
-                <video controls class="w-full max-w-2xl border-1 border-black">
+                <video controls class="media media--video">
                     <source src="${item.path}" type="video/mp4">
                 </video>
             `;
@@ -99,28 +99,28 @@ function renderMediaItem(item, workId) {
             const slideshowId = `slideshow-${workId}-${Math.random().toString(36).slice(2)}`;
 
             return `
-                <div class="max-w-2xl">
-                    <div class="relativeoverflow-hidden" style="aspect-ratio: 4/3;">
-                        <div id="${slideshowId}" class="flex overflow-x-scroll scroll-smooth snap-x snap-mandatory scrollbar-hide w-full h-full">
+                <div class="slideshow">
+                    <div class="slideshow__wrapper">
+                        <div id="${slideshowId}" class="slideshow__container">
                             ${item.path.map(imgPath => `
-                                <img 
-                                    src="${imgPath}" 
-                                    class="pr-5 lightbox-trigger flex-shrink-0 w-full h-full object-contain snap-center cursor-pointer hover:opacity-80 transition-opacity"
+                                <img
+                                    src="${imgPath}"
+                                    class="slideshow__image slideshow__image--lightbox"
                                     data-full-src="${imgPath}"
                                 >
                             `).join('')}
                         </div>
                     </div>
-                    <div class="flex gap-2 mt-2">
+                    <div class="slideshow__controls">
                         <button
                             data-slideshow="${slideshowId}"
                             data-direction="prev"
-                            class="slideshow-nav-btn px-4 py-2 border-2 border-black hover:bg-black hover:text-white transition-colors"
+                            class="slideshow__btn slideshow__btn--prev"
                         >←</button>
                         <button
                             data-slideshow="${slideshowId}"
                             data-direction="next"
-                            class="slideshow-nav-btn px-4 py-2 border-2 border-black hover:bg-black hover:text-white transition-colors"
+                            class="slideshow__btn slideshow__btn--next"
                         >→</button>
                     </div>
                 </div>
@@ -141,16 +141,16 @@ function renderWorks() {
     const container = document.getElementById('works-container');
 
     container.innerHTML = works.map(work => `
-        <div id="${work.id}" class="border-b-2 border-black pb-16 last:border-b-0">
-            <h2 class="text-2xl md:text-4xl mb-6">${work.title}</h2>
+        <div id="${work.id}" class="work">
+            <h2 class="work__title">${work.title}</h2>
 
             ${work.media.map(item => `
-                <div class="mb-6">
+                <div class="work__media">
                     ${renderMediaItem(item, work.id)}
                 </div>
             `).join('')}
 
-            <p class="text-base md:text-lg max-w-2xl">
+            <p class="work__description">
                 ${work.description}
             </p>
         </div>
@@ -165,19 +165,17 @@ function renderWorks() {
 function openLightbox(imageSrc) {
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
-    
+
     if (lightbox && lightboxImg) {
         lightboxImg.src = imageSrc;
-        lightbox.classList.remove('hidden');
-        lightbox.classList.add('flex');
+        lightbox.classList.add('lightbox--open');
     }
 }
 
 function closeLightbox() {
     const lightbox = document.getElementById('lightbox');
     if (lightbox) {
-        lightbox.classList.add('hidden');
-        lightbox.classList.remove('flex');
+        lightbox.classList.remove('lightbox--open');
     }
 }
 
@@ -251,7 +249,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Lightbox event delegation
     document.addEventListener('click', (e) => {
-        if (e.target.classList.contains('lightbox-trigger')) {
+        if (e.target.classList.contains('media__img--lightbox') ||
+            e.target.classList.contains('slideshow__image--lightbox')) {
             const fullSrc = e.target.getAttribute('data-full-src');
             openLightbox(fullSrc);
         }
@@ -276,14 +275,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Slideshow button event delegation
     document.addEventListener('click', (e) => {
-        if (e.target.classList.contains('slideshow-nav-btn')) {
+        if (e.target.classList.contains('slideshow__btn')) {
             const slideshowId = e.target.getAttribute('data-slideshow');
             const direction = e.target.getAttribute('data-direction');
             navigateSlideshow(slideshowId, direction);
         }
     });
 
-    document.querySelectorAll('.work-nav-link').forEach(link => {
+    document.querySelectorAll('.works-subnav__link').forEach(link => {
         link.addEventListener('click', e => {
             e.preventDefault();
             const workId = link.getAttribute('href').substring(1);

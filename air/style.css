@@ -1,3 +1,38 @@
+/* ===============================================
+   1. CSS VARIABLES
+   =============================================== */
+
+:root {
+    --color-black: #000000;
+    --color-white: #ffffff;
+    --color-gray-light: #d1d5db;
+
+    --spacing-1: 0.25rem;   /* 4px */
+    --spacing-2: 0.5rem;    /* 8px */
+    --spacing-4: 1rem;      /* 16px */
+    --spacing-6: 1.5rem;    /* 24px */
+    --spacing-8: 2rem;      /* 32px */
+    --spacing-12: 3rem;     /* 48px */
+    --spacing-16: 4rem;     /* 64px */
+
+    --border-width: 2px;
+    --border-style: solid;
+
+    --transition-speed: 300ms;
+    --transition-easing: ease;
+
+    --z-footer: 40;
+    --z-subnav: 40;
+    --z-nav: 50;
+    --z-lightbox: 50;
+    --z-lightbox-close: 60;
+}
+
+
+/* ===============================================
+   2. CSS RESET / BASE STYLES
+   =============================================== */
+
 html, body {
     margin: 0;
     padding: 0;
@@ -5,9 +40,25 @@ html, body {
     overflow: hidden;
 }
 
-main {
+body {
+    background-color: var(--color-white);
+    color: var(--color-black);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+
+/* ===============================================
+   3. LAYOUT SYSTEM
+   =============================================== */
+
+.main {
     position: relative;
     height: 100%;
+    padding-top: var(--spacing-16);
 }
 
 section {
@@ -18,18 +69,401 @@ section {
     height: 100%;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s ease;
+    transition: opacity var(--transition-speed) var(--transition-easing);
+    overflow-y: auto;
+    padding: var(--spacing-8);
+    padding-bottom: var(--spacing-12);
 }
 
 section.active {
     opacity: 1;
     visibility: visible;
-    padding: 20%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-/* Show works subnav only when works section is active */
-section#works.active ~ #works-subnav,
-#works-subnav.show {
+
+/* ===============================================
+   4. TYPOGRAPHY SCALE
+   =============================================== */
+
+.section__title {
+    font-size: 2.25rem; /* 36px */
+    margin-bottom: var(--spacing-8);
+}
+
+.section__text {
+    font-size: 1.125rem; /* 18px */
+    line-height: 1.75rem; /* 28px */
+    max-width: 42rem; /* 672px (max-w-2xl) */
+}
+
+.section__text a {
+    color: var(--color-black);
+    text-decoration: underline;
+}
+
+.section__text a:hover {
+    opacity: 0.7;
+}
+
+
+/* ===============================================
+   5. NAVIGATION (Main)
+   =============================================== */
+
+.nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--color-white);
+    border-bottom: var(--border-width) var(--border-style) var(--color-black);
+    z-index: var(--z-nav);
+}
+
+.nav__container {
+    display: flex;
+    width: 100%;
+}
+
+.nav__link {
+    flex: 1;
+    text-align: center;
+    padding: var(--spacing-4) 0;
+    border-right: var(--border-width) var(--border-style) var(--color-black);
+    background-color: var(--color-white);
+    color: var(--color-black);
+    text-decoration: none;
+    transition: background-color var(--transition-speed) var(--transition-easing),
+                color var(--transition-speed) var(--transition-easing);
+}
+
+.nav__link:last-child {
+    border-right: none;
+}
+
+.nav__link:hover {
+    background-color: var(--color-black);
+    color: var(--color-white);
+}
+
+
+/* ===============================================
+   6. WORKS SUBNAV
+   =============================================== */
+
+.works-subnav {
+    position: fixed;
+    top: calc(var(--spacing-4) * 2 + 1.25em); /* nav padding-y (top + bottom) + line height */
+    left: 0;
+    right: 0;
+    background-color: var(--color-white);
+    border-bottom: var(--border-width) var(--border-style) var(--color-black);
+    z-index: var(--z-subnav);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--transition-speed) var(--transition-easing);
+}
+
+.works-subnav.show {
     opacity: 1;
     visibility: visible;
+    /* padding-top: 0.25rem; */
+}
+
+section#works.active ~ .works-subnav {
+    opacity: 1;
+    visibility: visible;
+}
+
+.works-subnav__container {
+    display: flex;
+    width: 100%;
+    height: 1.75rem; /* 28px (h-7) */
+}
+
+.works-subnav__link {
+    flex: 1;
+    text-align: center;
+    padding: var(--spacing-1) 0;
+    border-right: var(--border-width) var(--border-style) var(--color-black);
+    background-color: var(--color-white);
+    color: var(--color-black);
+    text-decoration: none;
+    font-size: 0.875rem; /* 14px */
+    transition: background-color var(--transition-speed) var(--transition-easing),
+                color var(--transition-speed) var(--transition-easing);
+}
+
+.works-subnav__link:last-child {
+    border-right: none;
+}
+
+.works-subnav__link:hover {
+    background-color: var(--color-black);
+    color: var(--color-white);
+}
+
+
+/* ===============================================
+   7. SECTIONS (Specific)
+   =============================================== */
+
+#works {
+    padding-top: 8rem; /* Extra padding for subnav */
+}
+
+
+/* ===============================================
+   8. WORK COMPONENTS
+   =============================================== */
+
+.works-container {
+    margin-top: var(--spacing-8);
+    padding-bottom: var(--spacing-16);
+}
+
+.work {
+    border-bottom: var(--border-width) var(--border-style) var(--color-black);
+    padding-bottom: var(--spacing-16);
+    margin-bottom: var(--spacing-16);
+}
+
+.work:last-child {
+    border-bottom: none;
+}
+
+.work__title {
+    font-size: 1.5rem; /* 24px (text-2xl) */
+    margin-bottom: var(--spacing-6);
+}
+
+.work__media {
+    margin-bottom: var(--spacing-6);
+}
+
+.work__description {
+    font-size: 1rem; /* 16px (text-base) */
+    line-height: 1.5rem; /* 24px */
+    max-width: 42rem; /* 672px (max-w-2xl) */
+}
+
+
+/* ===============================================
+   9. MEDIA COMPONENTS
+   =============================================== */
+
+/* Image Media */
+.media {
+    width: 100%;
+    max-width: 42rem; /* 672px (max-w-2xl) */
+}
+
+.media--image {
+    border: var(--border-width) var(--border-style) var(--color-black);
+    overflow: hidden;
+    aspect-ratio: 4/3;
+}
+
+.media__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.media__img--lightbox {
+    cursor: pointer;
+    transition: opacity var(--transition-speed) var(--transition-easing);
+}
+
+.media__img--lightbox:hover {
+    opacity: 0.8;
+}
+
+/* Audio Media */
+.media--audio {
+    display: block;
+}
+
+/* Video Media */
+.media--video {
+    display: block;
+    border: 1px var(--border-style) var(--color-black);
+}
+
+
+/* ===============================================
+   10. SLIDESHOW COMPONENT
+   =============================================== */
+
+.slideshow {
+    max-width: 42rem; /* 672px (max-w-2xl) */
+}
+
+.slideshow__wrapper {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 4/3;
+}
+
+.slideshow__container {
+    display: flex;
+    overflow-x: scroll;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    width: 100%;
+    height: 100%;
+    /* Hide scrollbar */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+}
+
+.slideshow__container::-webkit-scrollbar {
+    display: none; /* Chrome/Safari/Opera */
+}
+
+.slideshow__image {
+    flex-shrink: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    scroll-snap-align: center;
+    padding-right: 1.25rem; /* 20px (pr-5) */
+}
+
+.slideshow__image--lightbox {
+    cursor: pointer;
+    transition: opacity var(--transition-speed) var(--transition-easing);
+}
+
+.slideshow__image--lightbox:hover {
+    opacity: 0.8;
+}
+
+.slideshow__controls {
+    display: flex;
+    gap: var(--spacing-2);
+    margin-top: var(--spacing-2);
+}
+
+.slideshow__btn {
+    padding: var(--spacing-2) var(--spacing-4);
+    border: var(--border-width) var(--border-style) var(--color-black);
+    background-color: var(--color-white);
+    color: var(--color-black);
+    cursor: pointer;
+    transition: background-color var(--transition-speed) var(--transition-easing),
+                color var(--transition-speed) var(--transition-easing);
+}
+
+.slideshow__btn:hover {
+    background-color: var(--color-black);
+    color: var(--color-white);
+}
+
+
+/* ===============================================
+   11. LIGHTBOX MODAL
+   =============================================== */
+
+.lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: var(--z-lightbox);
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.lightbox--open {
+    display: flex;
+}
+
+.lightbox__close {
+    position: absolute;
+    top: var(--spacing-4);
+    right: var(--spacing-4);
+    color: var(--color-white);
+    font-size: 2.25rem; /* 36px (text-4xl) */
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: var(--z-lightbox-close);
+    transition: color var(--transition-speed) var(--transition-easing);
+    padding: 0;
+    line-height: 1;
+}
+
+.lightbox__close:hover {
+    color: var(--color-gray-light);
+}
+
+.lightbox__image {
+    max-width: 90vw;
+    max-height: 90vh;
+    object-fit: contain;
+    border: var(--border-width) var(--border-style) var(--color-white);
+}
+
+
+/* ===============================================
+   12. FOOTER
+   =============================================== */
+
+.footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--color-white);
+    border-top: var(--border-width) var(--border-style) var(--color-black);
+    z-index: var(--z-footer);
+}
+
+.footer__container {
+    height: 1.5rem; /* 24px (h-6) */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.footer__text {
+    font-size: 0.75rem; /* 12px (text-xs) */
+}
+
+
+/* ===============================================
+   13. MEDIA QUERIES (Responsive)
+   =============================================== */
+
+@media (min-width: 768px) {
+    section {
+        padding: var(--spacing-16);
+        padding-bottom: var(--spacing-12);
+    }
+
+    .section__title {
+        font-size: 3.75rem; /* 60px (text-6xl) */
+    }
+
+    .section__text {
+        font-size: 1.25rem; /* 20px (text-xl) */
+        line-height: 1.75rem; /* 28px */
+    }
+
+    .work__title {
+        font-size: 2.25rem; /* 36px (text-4xl) */
+    }
+
+    .work__description {
+        font-size: 1.125rem; /* 18px (text-lg) */
+        line-height: 1.75rem; /* 28px */
+    }
 }
