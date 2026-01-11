@@ -110,21 +110,23 @@ function renderMediaItem(item, workId) {
                                 >
                             `).join('')}
                         </div>
-                    </div>
-                    <div class="slideshow__controls">
-                        <button
-                            data-slideshow="${slideshowId}"
-                            data-direction="prev"
-                            class="slideshow__btn slideshow__btn--prev"
-                        >←</button>
-                        <button
-                            data-slideshow="${slideshowId}"
-                            data-direction="next"
-                            class="slideshow__btn slideshow__btn--next"
-                        >→</button>
+
+                        <div class="slideshow__controls">
+                            <button
+                                data-slideshow="${slideshowId}"
+                                data-direction="prev"
+                                class="slideshow__btn slideshow__btn--prev"
+                            >←</button>
+                            <button
+                                data-slideshow="${slideshowId}"
+                                data-direction="next"
+                                class="slideshow__btn slideshow__btn--next"
+                            >→</button>
+                        </div>
                     </div>
                 </div>
             `;
+
         }
 
         default:

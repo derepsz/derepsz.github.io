@@ -3,8 +3,8 @@
    =============================================== */
 
 :root {
-    --color-black: #000000;
-    --color-white: #ffffff;
+    --color-foreground: #f1eacd;
+    --color-background: #202020;
     --color-gray-light: #d1d5db;
 
     --spacing-1: 0.25rem;   /* 4px */
@@ -15,7 +15,7 @@
     --spacing-12: 3rem;     /* 48px */
     --spacing-16: 4rem;     /* 64px */
 
-    --border-width: 2px;
+    --border-width: 1px;
     --border-style: solid;
 
     --transition-speed: 300ms;
@@ -41,9 +41,10 @@ html, body {
 }
 
 body {
-    background-color: var(--color-white);
-    color: var(--color-black);
+    background-color: var(--color-background);
+    color: var(--color-foreground);
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-weight:100;
 }
 
 * {
@@ -100,7 +101,7 @@ section.active {
 }
 
 .section__text a {
-    color: var(--color-black);
+    color: var(--color-foreground);
     text-decoration: underline;
 }
 
@@ -118,8 +119,8 @@ section.active {
     top: 0;
     left: 0;
     right: 0;
-    background-color: var(--color-white);
-    border-bottom: var(--border-width) var(--border-style) var(--color-black);
+    background-color: var(--color-background);
+    border-bottom: var(--border-width) var(--border-style) var(--color-foreground);
     z-index: var(--z-nav);
 }
 
@@ -132,9 +133,9 @@ section.active {
     flex: 1;
     text-align: center;
     padding: var(--spacing-4) 0;
-    border-right: var(--border-width) var(--border-style) var(--color-black);
-    background-color: var(--color-white);
-    color: var(--color-black);
+    border-right: var(--border-width) var(--border-style) var(--color-foreground);
+    background-color: var(--color-background);
+    color: var(--color-foreground);
     text-decoration: none;
     transition: background-color var(--transition-speed) var(--transition-easing),
                 color var(--transition-speed) var(--transition-easing);
@@ -145,8 +146,8 @@ section.active {
 }
 
 .nav__link:hover {
-    background-color: var(--color-black);
-    color: var(--color-white);
+    background-color: var(--color-foreground);
+    color: var(--color-background);
 }
 
 
@@ -156,11 +157,11 @@ section.active {
 
 .works-subnav {
     position: fixed;
-    top: calc(var(--spacing-4) * 2 + 1.25em); /* nav padding-y (top + bottom) + line height */
+    top: 3.2rem;
     left: 0;
     right: 0;
-    background-color: var(--color-white);
-    border-bottom: var(--border-width) var(--border-style) var(--color-black);
+    background-color: var(--color-background);
+    border-bottom: var(--border-width) var(--border-style) var(--color-foreground);
     z-index: var(--z-subnav);
     opacity: 0;
     visibility: hidden;
@@ -188,9 +189,9 @@ section#works.active ~ .works-subnav {
     flex: 1;
     text-align: center;
     padding: var(--spacing-1) 0;
-    border-right: var(--border-width) var(--border-style) var(--color-black);
-    background-color: var(--color-white);
-    color: var(--color-black);
+    border-right: var(--border-width) var(--border-style) var(--color-foreground);
+    background-color: var(--color-background);
+    color: var(--color-foreground);
     text-decoration: none;
     font-size: 0.875rem; /* 14px */
     transition: background-color var(--transition-speed) var(--transition-easing),
@@ -202,8 +203,8 @@ section#works.active ~ .works-subnav {
 }
 
 .works-subnav__link:hover {
-    background-color: var(--color-black);
-    color: var(--color-white);
+    background-color: var(--color-foreground);
+    color: var(--color-background);
 }
 
 
@@ -211,9 +212,9 @@ section#works.active ~ .works-subnav {
    7. SECTIONS (Specific)
    =============================================== */
 
-#works {
+/* #works {
     padding-top: 8rem; /* Extra padding for subnav */
-}
+/* } */ */
 
 
 /* ===============================================
@@ -226,7 +227,7 @@ section#works.active ~ .works-subnav {
 }
 
 .work {
-    border-bottom: var(--border-width) var(--border-style) var(--color-black);
+    border-bottom: var(--border-width) var(--border-style) var(--color-foreground);
     padding-bottom: var(--spacing-16);
     margin-bottom: var(--spacing-16);
 }
@@ -262,7 +263,7 @@ section#works.active ~ .works-subnav {
 }
 
 .media--image {
-    border: var(--border-width) var(--border-style) var(--color-black);
+    border: var(--border-width) var(--border-style) var(--color-foreground);
     overflow: hidden;
     aspect-ratio: 4/3;
 }
@@ -291,7 +292,7 @@ section#works.active ~ .works-subnav {
 /* Video Media */
 .media--video {
     display: block;
-    border: 1px var(--border-style) var(--color-black);
+    border: 1px var(--border-style) var(--color-foreground);
 }
 
 
@@ -344,24 +345,45 @@ section#works.active ~ .works-subnav {
 }
 
 .slideshow__controls {
-    display: flex;
-    gap: var(--spacing-2);
-    margin-top: var(--spacing-2);
+    position: absolute;
+    inset: 0;
+    display: block;
+    pointer-events: none;
 }
 
 .slideshow__btn {
-    padding: var(--spacing-2) var(--spacing-4);
-    border: var(--border-width) var(--border-style) var(--color-black);
-    background-color: var(--color-white);
-    color: var(--color-black);
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: auto;
+
+    padding: 0.4em 0.6em;
+    border: none;
+    background: none;
+    color: var(--color-foreground);
     cursor: pointer;
-    transition: background-color var(--transition-speed) var(--transition-easing),
-                color var(--transition-speed) var(--transition-easing);
+
+    font-size: 1.75rem;
+    line-height: 1;
+
+    text-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
+    transition:
+        opacity var(--transition-speed) var(--transition-easing),
+        transform var(--transition-speed) var(--transition-easing);
 }
 
 .slideshow__btn:hover {
-    background-color: var(--color-black);
-    color: var(--color-white);
+    opacity: 0.7;
+    transform: translateY(-50%) scale(1.1);
+}
+
+
+.slideshow__btn--prev {
+    left: 0.75rem;
+}
+
+.slideshow__btn--next {
+    right: 0.75rem;
 }
 
 
@@ -390,7 +412,7 @@ section#works.active ~ .works-subnav {
     position: absolute;
     top: var(--spacing-4);
     right: var(--spacing-4);
-    color: var(--color-white);
+    color: var(--color-background);
     font-size: 2.25rem; /* 36px (text-4xl) */
     background: none;
     border: none;
@@ -409,7 +431,7 @@ section#works.active ~ .works-subnav {
     max-width: 90vw;
     max-height: 90vh;
     object-fit: contain;
-    border: var(--border-width) var(--border-style) var(--color-white);
+    border: var(--border-width) var(--border-style) var(--color-background);
 }
 
 
@@ -422,8 +444,8 @@ section#works.active ~ .works-subnav {
     bottom: 0;
     left: 0;
     right: 0;
-    background-color: var(--color-white);
-    border-top: var(--border-width) var(--border-style) var(--color-black);
+    background-color: var(--color-background);
+    border-top: var(--border-width) var(--border-style) var(--color-foreground);
     z-index: var(--z-footer);
 }
 
@@ -451,15 +473,18 @@ section#works.active ~ .works-subnav {
 
     .section__title {
         font-size: 3.75rem; /* 60px (text-6xl) */
+        font-weight: lighter;
     }
 
     .section__text {
         font-size: 1.25rem; /* 20px (text-xl) */
         line-height: 1.75rem; /* 28px */
+        font-weight: lighter;
     }
 
     .work__title {
         font-size: 2.25rem; /* 36px (text-4xl) */
+        font-weight: lighter;
     }
 
     .work__description {
