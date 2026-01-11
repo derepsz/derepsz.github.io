@@ -1,223 +1,302 @@
-// Define your works here - easy to edit!
+// ===============================
+// CATALOG
+// ===============================
+
 const works = [
     {
         id: 'work-1',
         title: 'Project Title One',
-        type: 'image',
-        media: './media/example1.jpg',
-        description: 'Description of the first project goes here. You can write as much or as little as you want.'
+        media: [
+            {
+                type: 'image',
+                path: './works/01.png'
+            }
+        ],
+        description: 'Description of the first project goes here.'
     },
     {
         id: 'work-2',
-        title: 'Audio Piece',
-        type: 'audio',
-        media: './media/ambient.mp3',
+        title: 'Audio Piece (with image)',
+        media: [
+            {
+                type: 'image',
+                path: './works/02.png'
+            },
+            {
+                type: 'audio',
+                path: './works/dowedo_DER1_v0_251211.mp3'
+            }
+        ],
         description: 'An audio work exploring spatial sound.'
     },
     {
         id: 'work-3',
         title: 'Video Documentation',
-        type: 'video',
-        media: './media/demo-clip.mp4',
+        media: [
+            {
+                type: 'video',
+                path: './works/a06_talking2_Trim.mp4'
+            }
+        ],
         description: 'Video documentation of an installation.'
     },
     {
         id: 'work-4',
-        title: 'Slideshow Example',
-        type: 'slideshow',
+        title: 'Slideshow',
         media: [
-            './media/slide1.jpg',
-            './media/slide2.jpg',
-            './media/slide3.jpg'
+            {
+                type: 'slideshow',
+                path: [
+                    './works/04/04a.png',
+                    './works/04/04b.png',
+                    './works/04/04c.png',
+                    './works/04/04d.png'
+                ]
+            }
         ],
-        description: 'A series of images from the project.'
-    },
-    // Add more works here...
-    {
-        id: 'work-5',
-        title: 'Work Five',
-        type: 'image',
-        media: './media/example5.jpg',
-        description: 'Fifth project description.'
-    },
-    {
-        id: 'work-6',
-        title: 'Work Six',
-        type: 'image',
-        media: './media/example6.jpg',
-        description: 'Sixth project description.'
-    },
-    {
-        id: 'work-7',
-        title: 'Work Seven',
-        type: 'image',
-        media: './media/example7.jpg',
-        description: 'Seventh project description.'
-    },
-    {
-        id: 'work-8',
-        title: 'Work Eight',
-        type: 'image',
-        media: './media/example8.jpg',
-        description: 'Eighth project description.'
-    },
-    {
-        id: 'work-9',
-        title: 'Work Nine',
-        type: 'image',
-        media: './media/example9.jpg',
-        description: 'Ninth project description.'
-    },
-    {
-        id: 'work-10',
-        title: 'Work Ten',
-        type: 'image',
-        media: './media/example10.jpg',
-        description: 'Tenth project description.'
+        description: 'A series of images.'
     }
+    // Add more works here...
 ];
 
-// Render media based on type
-function renderMedia(work) {
-    switch(work.type) {
+
+// ===============================
+// RENDER MEDIA ITEMS
+// ===============================
+
+function renderMediaItem(item, workId) {
+    switch (item.type) {
+
         case 'image':
-            return `<img src="${work.media}" alt="${work.title}" class="w-full max-w-2xl border-2 border-black">`;
-        
+            const imageId = `img-${workId}-${Math.random().toString(36).slice(2)}`;
+            return `
+                <img 
+                    id="${imageId}"
+                    src="${item.path}" 
+                    alt="" 
+                    class="lightbox-trigger border-2 border-black cursor-pointer hover:opacity-80 transition-opacity"
+                    style="height: 350px; width: auto; object-fit: cover;"
+                    data-full-src="${item.path}"
+                >
+            `;
+
         case 'audio':
             return `
                 <audio controls class="w-full max-w-2xl">
-                    <source src="${work.media}" type="audio/mpeg">
+                    <source src="${item.path}" type="audio/mpeg">
                 </audio>
             `;
-        
+
         case 'video':
             return `
-                <video controls class="w-full max-w-2xl border-2 border-black">
-                    <source src="${work.media}" type="video/mp4">
+                <video controls class="w-full max-w-2xl border-1 border-black">
+                    <source src="${item.path}" type="video/mp4">
                 </video>
             `;
-        
-        case 'slideshow':
-            const slideshowId = `slideshow-${work.id}`;
+
+        case 'slideshow': {
+            const slideshowId = `slideshow-${workId}-${Math.random().toString(36).slice(2)}`;
+
+            // initialize state
+            if (!window.slideshowStates) window.slideshowStates = {};
+            window.slideshowStates[slideshowId] = { index: 0, images: item.path };
+
             return `
                 <div class="max-w-2xl">
-                    <div id="${slideshowId}" class="border-2 border-black mb-2">
-                        <img src="${work.media[0]}" alt="${work.title}" class="w-full slideshow-img">
+                    <div id="${slideshowId}" class="border-2 border-black mb-2 relative flex items-center justify-center" style="min-height: 400px;">
+                        <img 
+                            src="${item.path[0]}" 
+                            class="w-full h-full object-contain"
+                        >
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="prevSlide('${slideshowId}', ${JSON.stringify(work.media)})" 
-                                class="px-4 py-2 border-2 border-black hover:bg-black hover:text-white">←</button>
-                        <button onclick="nextSlide('${slideshowId}', ${JSON.stringify(work.media)})" 
-                                class="px-4 py-2 border-2 border-black hover:bg-black hover:text-white">→</button>
+                        <button
+                            data-slideshow="${slideshowId}"
+                            data-direction="prev"
+                            class="slideshow-btn px-4 py-2 border-2 border-black hover:bg-black hover:text-white"
+                        >←</button>
+                        <button
+                            data-slideshow="${slideshowId}"
+                            data-direction="next"
+                            class="slideshow-btn px-4 py-2 border-2 border-black hover:bg-black hover:text-white"
+                        >→</button>
                     </div>
                 </div>
             `;
-        
+        }
+
         default:
             return '';
     }
 }
 
-// Render all works
+
+// ===============================
+// RENDER ALL WORKS
+// ===============================
+
 function renderWorks() {
     const container = document.getElementById('works-container');
+
     container.innerHTML = works.map(work => `
         <div id="${work.id}" class="border-b-2 border-black pb-16 last:border-b-0">
             <h2 class="text-2xl md:text-4xl mb-6">${work.title}</h2>
-            <div class="mb-6">
-                ${renderMedia(work)}
-            </div>
-            <p class="text-base md:text-lg max-w-2xl">${work.description}</p>
+
+            ${work.media.map(item => `
+                <div class="mb-6">
+                    ${renderMediaItem(item, work.id)}
+                </div>
+            `).join('')}
+
+            <p class="text-base md:text-lg max-w-2xl">
+                ${work.description}
+            </p>
         </div>
     `).join('');
+}
+
+
+// ===============================
+// LIGHTBOX
+// ===============================
+
+function openLightbox(imageSrc) {
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
     
-    // Initialize slideshow states
-    works.filter(w => w.type === 'slideshow').forEach(work => {
-        const slideshowId = `slideshow-${work.id}`;
-        if (!window.slideshowStates) window.slideshowStates = {};
-        window.slideshowStates[slideshowId] = 0;
-    });
+    if (lightbox && lightboxImg) {
+        lightboxImg.src = imageSrc;
+        lightbox.classList.remove('hidden');
+        lightbox.classList.add('flex');
+    }
 }
 
-// Slideshow navigation
-function nextSlide(slideshowId, images) {
-    if (!window.slideshowStates[slideshowId]) window.slideshowStates[slideshowId] = 0;
-    window.slideshowStates[slideshowId] = (window.slideshowStates[slideshowId] + 1) % images.length;
+function closeLightbox() {
+    const lightbox = document.getElementById('lightbox');
+    if (lightbox) {
+        lightbox.classList.add('hidden');
+        lightbox.classList.remove('flex');
+    }
+}
+
+
+// ===============================
+// SLIDESHOW NAVIGATION
+// ===============================
+
+function navigateSlideshow(slideshowId, direction) {
+    if (!window.slideshowStates || !window.slideshowStates[slideshowId]) return;
+
+    const state = window.slideshowStates[slideshowId];
+    const images = state.images;
+
+    if (direction === 'next') {
+        state.index = (state.index + 1) % images.length;
+    } else {
+        state.index = (state.index - 1 + images.length) % images.length;
+    }
+
     const img = document.querySelector(`#${slideshowId} img`);
-    img.src = images[window.slideshowStates[slideshowId]];
+    if (img) img.src = images[state.index];
 }
 
-function prevSlide(slideshowId, images) {
-    if (!window.slideshowStates[slideshowId]) window.slideshowStates[slideshowId] = 0;
-    window.slideshowStates[slideshowId] = (window.slideshowStates[slideshowId] - 1 + images.length) % images.length;
-    const img = document.querySelector(`#${slideshowId} img`);
-    img.src = images[window.slideshowStates[slideshowId]];
-}
 
-// Handle section navigation
+// ===============================
+// SECTION NAVIGATION
+// ===============================
+
 function showSection(sectionId) {
-    // Hide all sections
     document.querySelectorAll('section').forEach(section => {
         section.classList.remove('active');
     });
-    
-    // Show the target section
+
     const targetSection = document.getElementById(sectionId);
     if (targetSection) {
         targetSection.classList.add('active');
     }
-    
-    // Show/hide works subnav
+
     const worksSubnav = document.getElementById('works-subnav');
-    if (sectionId === 'works') {
-        worksSubnav.classList.add('show');
-    } else {
-        worksSubnav.classList.remove('show');
+    if (worksSubnav) {
+        worksSubnav.classList.toggle('show', sectionId === 'works');
     }
 }
 
-// Scroll to a specific work within the works section
+
+// ===============================
+// SCROLL TO WORK
+// ===============================
+
 function scrollToWork(workId) {
     const workElement = document.getElementById(workId);
     const worksSection = document.getElementById('works');
-    
+
     if (workElement && worksSection) {
-        // Make sure works section is active
         showSection('works');
-        
-        // Wait a bit for the section to show, then scroll
+
         setTimeout(() => {
             worksSection.scrollTo({
-                top: workElement.offsetTop - 100, // Offset for navbars
+                top: workElement.offsetTop - 100,
                 behavior: 'smooth'
             });
         }, 100);
     }
 }
 
-// Handle work navigation clicks
-document.addEventListener('DOMContentLoaded', function() {
-    const workNavLinks = document.querySelectorAll('.work-nav-link');
-    workNavLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
+
+// ===============================
+// EVENT LISTENERS
+// ===============================
+
+document.addEventListener('DOMContentLoaded', () => {
+    renderWorks();
+
+    // Lightbox event delegation
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('lightbox-trigger')) {
+            const fullSrc = e.target.getAttribute('data-full-src');
+            openLightbox(fullSrc);
+        }
+    });
+
+    // Close lightbox on background click or close button
+    const lightbox = document.getElementById('lightbox');
+    if (lightbox) {
+        lightbox.addEventListener('click', (e) => {
+            if (e.target.id === 'lightbox' || e.target.id === 'lightbox-close') {
+                closeLightbox();
+            }
+        });
+    }
+
+    // Close lightbox with Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeLightbox();
+        }
+    });
+
+    // Slideshow button event delegation
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('slideshow-btn')) {
+            const slideshowId = e.target.getAttribute('data-slideshow');
+            const direction = e.target.getAttribute('data-direction');
+            navigateSlideshow(slideshowId, direction);
+        }
+    });
+
+    document.querySelectorAll('.work-nav-link').forEach(link => {
+        link.addEventListener('click', e => {
             e.preventDefault();
-            const workId = this.getAttribute('href').substring(1);
+            const workId = link.getAttribute('href').substring(1);
             scrollToWork(workId);
         });
     });
-});
 
-// Listen for hash changes
-window.addEventListener('hashchange', function() {
-    const hash = window.location.hash.substring(1); // Remove the #
-    if (hash) {
-        showSection(hash);
-    }
-});
-
-// Initialize on page load
-window.addEventListener('DOMContentLoaded', function() {
-    renderWorks();
     const hash = window.location.hash.substring(1);
-    showSection(hash || 'home'); // Default to home if no hash
+    showSection(hash || 'home');
+});
+
+window.addEventListener('hashchange', () => {
+    const hash = window.location.hash.substring(1);
+    if (hash) showSection(hash);
 });
