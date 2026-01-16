@@ -12,7 +12,7 @@ const GLITCH_CONFIG = {
 
     screenTear: {
         enabled: true,
-        minInterval: 5000,      // Every 2-5 seconds for testing
+        minInterval: 7000,      // Every 2-5 seconds for testing
         maxInterval: 20000,
         intensity: 0.5,         // CRANKED UP
     },
@@ -26,8 +26,8 @@ const GLITCH_CONFIG = {
 
     jitter: {
         enabled: true,
-        minInterval: 2000,      // Every 1-3 seconds for testing
-        maxInterval: 6000,
+        minInterval: 3000,      // Every 1-3 seconds for testing
+        maxInterval: 10000,
         intensity: 3.0,        // Multiplier for jitter displacement
     }
 };
