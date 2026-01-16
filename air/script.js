@@ -40,7 +40,7 @@ const GLITCH_CONFIG = {
 const works = [
     {
         id: 'xor',
-        title: 'XOR (eXtended Organic Reality)',
+        title: 'XOR (eXtended Organic Reality) - 2023',
         media: [
             {
                 type: 'slideshow',
@@ -58,7 +58,7 @@ const works = [
     },
     {
         id: 'dntbd',
-        title: 'Hylics Resources',
+        title: 'Hylics Resources - 2024',
         media: [
             {
                 type: 'audio',
@@ -70,7 +70,7 @@ const works = [
     },
     {
         id: `shaderman`,
-        title: 'ENTER THE VOID',
+        title: 'NOE - 2026',
         media: [
             {
                 type: 'slideshow',
@@ -85,7 +85,7 @@ const works = [
     },
     {
         id: 'afterlife',
-        title: 'Afterlife',
+        title: 'Afterlife - 2025',
         media: [
             {
                 type: 'image',
@@ -97,7 +97,7 @@ const works = [
     },
     {
         id: 'archives',
-        title: 'Relics',
+        title: 'Relics ~ 2010',
         media: [
             {
                 type: 'slideshow',
@@ -109,7 +109,7 @@ const works = [
                 ]
             }
         ],
-        description: 'Selections from the Chicago archives, ~2010. Explorations in personal distance \
+        description: 'Selections from the Chicago archives. Explorations in personal distance \
         and technological mediation.'
     }
 ];
