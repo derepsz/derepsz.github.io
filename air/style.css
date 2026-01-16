@@ -115,6 +115,22 @@ section.active {
     text-decoration: underline;
 }
 
+/* Services section list - left-aligned within centered container */
+.section__text--services {
+    text-align: left;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.section__text--services ul {
+    padding-left: 1.5em;
+    margin: 0 0 var(--spacing-4) 0;
+}
+
+.section__text--services h2 {
+    margin: var(--spacing-6) 0 var(--spacing-2) 0;
+}
+
 @media (hover: hover) and (pointer: fine) {
     .section__text a:hover {
         opacity: 0.7;
