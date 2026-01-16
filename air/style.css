@@ -121,6 +121,15 @@ section.active {
     }
 }
 
+.section__image {
+    width: 100%;
+    max-width: 42rem; /* 672px (max-w-2xl) - matches other media */
+    height: auto;
+    display: block;
+    margin-bottom: var(--spacing-4);
+    border: var(--border-width) var(--border-style) var(--color-foreground);
+}
+
 
 /* ===============================================
    5. NAVIGATION (Main)
