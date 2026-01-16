@@ -46,11 +46,34 @@ const works = [
         media: [
             {
                 type: 'slideshow',
+                // New format: items array supports mixed image/video
+                // items: [
+                //     { type: 'image', path: './works/04/04a.png' },
+                //     { type: 'video', path: './works/04/04b.mp4', poster: './works/04/04b-thumb.jpg' },
+                //     { type: 'image', path: './works/04/04c.png' }
+                // ]
+                // Old format still works:
                 path: [
                     './works/04/04a.png',
                     './works/04/04b.png',
                     './works/04/04c.png',
                     './works/04/04d.png'
+                ]
+            }
+        ],
+        description: 'A series of images.'
+    },
+        {
+        id: 'work-5',
+        title: 'Mixed Slideshow',
+        media: [
+            {
+                type: 'slideshow',
+                // New format: items array supports mixed image/video
+                items: [
+                    { type: 'image', path: './works/04/04a.png' },
+                    { type: 'video', path: './works/a06_talking2_Trim.mp4', poster: './works/04/04b.png' },
+                    { type: 'image', path: './works/04/04c.png' }
                 ]
             }
         ],
@@ -98,17 +121,48 @@ function renderMediaItem(item, workId) {
         case 'slideshow': {
             const slideshowId = `slideshow-${workId}-${Math.random().toString(36).slice(2)}`;
 
+            // Support both old format (path array) and new format (items array)
+            const mediaItems = item.items || item.path.map(p => ({ type: 'image', path: p }));
+
+            const renderSlide = (media) => {
+                if (media.type === 'video') {
+                    return `
+                        <video
+                            controls
+                            class="slideshow__video"
+                            ${media.poster ? `poster="${media.poster}"` : ''}
+                        >
+                            <source src="${media.path}" type="video/mp4">
+                        </video>
+                    `;
+                }
+                return `
+                    <img
+                        src="${media.path}"
+                        class="slideshow__image slideshow__image--lightbox"
+                        data-full-src="${media.path}"
+                    >
+                `;
+            };
+
+            const renderThumb = (media) => {
+                const thumbSrc = media.type === 'video' ? media.poster : media.path;
+                if (!thumbSrc) return '';
+                return `
+                    <img
+                        src="${thumbSrc}"
+                        class="slideshow__thumb${media.type === 'video' ? ' slideshow__thumb--video' : ''}"
+                        alt=""
+                        aria-hidden="true"
+                    >
+                `;
+            };
+
             return `
                 <div class="slideshow">
                     <div class="slideshow__wrapper">
                         <div id="${slideshowId}" class="slideshow__container">
-                            ${item.path.map(imgPath => `
-                                <img
-                                    src="${imgPath}"
-                                    class="slideshow__image slideshow__image--lightbox"
-                                    data-full-src="${imgPath}"
-                                >
-                            `).join('')}
+                            ${mediaItems.map(renderSlide).join('')}
                         </div>
 
                         <div class="slideshow__controls">
@@ -126,19 +180,10 @@ function renderMediaItem(item, workId) {
                     </div>
 
                     <div class="slideshow__filmstrip">
-                        ${item.path.map(imgPath => `
-                            <img
-                                src="${imgPath}"
-                                class="slideshow__thumb"
-                                alt=""
-                                aria-hidden="true"
-                            >
-                        `).join('')}
+                        ${mediaItems.map(renderThumb).join('')}
                     </div>
                 </div>
             `;
-
-
         }
 
         default:
