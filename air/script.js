@@ -1,4 +1,39 @@
 // ===============================
+// GLITCH CONFIG
+// ===============================
+
+const GLITCH_CONFIG = {
+    enabled: true,              // Master kill switch
+
+    chromatic: {
+        enabled: true,
+        intensity: 2.0,         // CRANKED UP for testing
+    },
+
+    screenTear: {
+        enabled: true,
+        minInterval: 5000,      // Every 2-5 seconds for testing
+        maxInterval: 20000,
+        intensity: 0.5,         // CRANKED UP
+    },
+
+    textCorruption: {
+        enabled: true,
+        minInterval: 100,      // Every 2-5 seconds for testing
+        maxInterval: 5000,
+        intensity: 7.0,         // Corrupt more chars
+    },
+
+    jitter: {
+        enabled: true,
+        minInterval: 2000,      // Every 1-3 seconds for testing
+        maxInterval: 6000,
+        intensity: 3.0,        // Multiplier for jitter displacement
+    }
+};
+
+
+// ===============================
 // CATALOG
 // ===============================
 
@@ -358,9 +393,196 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const hash = window.location.hash.substring(1);
     showSection(hash || 'home');
+
+    // Initialize glitch effects
+    initGlitchEffects();
 });
 
 window.addEventListener('hashchange', () => {
     const hash = window.location.hash.substring(1);
     if (hash) showSection(hash);
 });
+
+
+// ===============================
+// GLITCH EFFECTS
+// ===============================
+
+// Throttle helper
+function throttle(fn, wait) {
+    let lastTime = 0;
+    return function(...args) {
+        const now = Date.now();
+        if (now - lastTime >= wait) {
+            lastTime = now;
+            fn.apply(this, args);
+        }
+    };
+}
+
+// Random range helper
+function randomInRange(min, max) {
+    return min + Math.random() * (max - min);
+}
+
+// Chromatic aberration - RGB split follows mouse
+function initChromaticAberration() {
+    if (!GLITCH_CONFIG.enabled || !GLITCH_CONFIG.chromatic.enabled) return;
+
+    // Apply chromatic class to target elements
+    const targets = document.querySelectorAll('.section__title, .work__title, .nav__link, .works-subnav__link');
+    targets.forEach(el => el.classList.add('glitch-chromatic'));
+
+    // Set intensity
+    document.documentElement.style.setProperty('--glitch-intensity', GLITCH_CONFIG.chromatic.intensity);
+
+    // Track mouse movement - radial from center
+    document.addEventListener('mousemove', throttle((e) => {
+        const x = (e.clientX / window.innerWidth - 0.5) * 2;  // -1 to 1
+        const y = (e.clientY / window.innerHeight - 0.5) * 2;
+        // Radial distance from center (0 at center, 1 at corners)
+        const radial = Math.sqrt(x * x + y * y);
+        document.documentElement.style.setProperty('--glitch-x', x);
+        document.documentElement.style.setProperty('--glitch-y', y);
+        document.documentElement.style.setProperty('--glitch-radial', radial);
+    }, 16)); // ~60fps
+}
+
+// Screen tear - brief horizontal displacement
+function triggerScreenTear() {
+    if (!GLITCH_CONFIG.enabled || !GLITCH_CONFIG.screenTear.enabled) return;
+
+    const main = document.querySelector('.main');
+    if (!main) return;
+
+    document.documentElement.style.setProperty('--glitch-intensity', GLITCH_CONFIG.screenTear.intensity);
+    main.classList.add('glitch-tear');
+
+    setTimeout(() => {
+        main.classList.remove('glitch-tear');
+        // Restore chromatic intensity
+        document.documentElement.style.setProperty('--glitch-intensity', GLITCH_CONFIG.chromatic.intensity);
+    }, 100);
+}
+
+function scheduleScreenTear() {
+    if (!GLITCH_CONFIG.enabled || !GLITCH_CONFIG.screenTear.enabled) return;
+
+    const delay = randomInRange(GLITCH_CONFIG.screenTear.minInterval, GLITCH_CONFIG.screenTear.maxInterval);
+    setTimeout(() => {
+        triggerScreenTear();
+        scheduleScreenTear();
+    }, delay);
+}
+
+// Text corruption - brief unicode glitches
+const corruptionMap = {
+    'a': ['ä', 'à', 'á', 'â', 'ã', 'ā', 'ǎ'],
+    'b': ['ƀ', 'ḃ', 'ɓ'],
+    'c': ['ç', 'ć', 'č', 'ĉ'],
+    'd': ['ď', 'đ', 'ḋ'],
+    'e': ['ë', 'è', 'é', 'ê', 'ę', 'ē', 'ě'],
+    'f': ['ƒ'],
+    'g': ['ğ', 'ġ', 'ģ'],
+    'h': ['ħ', 'ḣ'],
+    'i': ['ï', 'ì', 'í', 'î', 'ı', 'ī', 'ĩ'],
+    'j': ['ĵ'],
+    'k': ['ķ', 'ḱ'],
+    'l': ['ł', 'ľ', 'ļ'],
+    'm': ['ṁ', 'ɱ'],
+    'n': ['ñ', 'ń', 'ň', 'ņ'],
+    'o': ['ö', 'ò', 'ó', 'ô', 'ø', 'ō', 'õ'],
+    'p': ['ṗ', 'þ'],
+    'r': ['ř', 'ŕ', 'ṙ'],
+    's': ['ş', 'ś', 'š', 'ṡ'],
+    't': ['ţ', 'ť', 'ṫ'],
+    'u': ['ü', 'ù', 'ú', 'û', 'ū', 'ů'],
+    'v': ['ṿ'],
+    'w': ['ŵ', 'ẁ', 'ẃ'],
+    'x': ['ẋ'],
+    'y': ['ÿ', 'ý', 'ŷ'],
+    'z': ['ž', 'ź', 'ż'],
+};
+
+function corruptText(element) {
+    if (!element || !element.textContent) return;
+
+    const original = element.textContent;
+    const chars = original.split('');
+
+    // Corrupt more characters based on intensity
+    const numCorrupt = Math.ceil(GLITCH_CONFIG.textCorruption.intensity * (1 + Math.random() * 2));
+
+    for (let i = 0; i < numCorrupt; i++) {
+        const idx = Math.floor(Math.random() * chars.length);
+        const char = chars[idx].toLowerCase();
+        if (corruptionMap[char]) {
+            const replacements = corruptionMap[char];
+            chars[idx] = replacements[Math.floor(Math.random() * replacements.length)];
+        }
+    }
+
+    element.textContent = chars.join('');
+
+    // Revert after visible moment (longer for testing)
+    setTimeout(() => {
+        element.textContent = original;
+    }, 300 + Math.random() * 400);
+}
+
+function triggerTextCorruption() {
+    if (!GLITCH_CONFIG.enabled || !GLITCH_CONFIG.textCorruption.enabled) return;
+
+    // Select random text element
+    const candidates = document.querySelectorAll('.section__title, .work__title, .nav__link, .work__description');
+    if (candidates.length === 0) return;
+
+    const target = candidates[Math.floor(Math.random() * candidates.length)];
+    corruptText(target);
+}
+
+function scheduleTextCorruption() {
+    if (!GLITCH_CONFIG.enabled || !GLITCH_CONFIG.textCorruption.enabled) return;
+
+    const delay = randomInRange(GLITCH_CONFIG.textCorruption.minInterval, GLITCH_CONFIG.textCorruption.maxInterval);
+    setTimeout(() => {
+        triggerTextCorruption();
+        scheduleTextCorruption();
+    }, delay);
+}
+
+// Micro-jitter - brief positional glitch on random element
+function triggerJitter() {
+    if (!GLITCH_CONFIG.enabled || !GLITCH_CONFIG.jitter.enabled) return;
+
+    const candidates = document.querySelectorAll('.section__title, .work__title, .nav__link, .media--image');
+    if (candidates.length === 0) return;
+
+    const target = candidates[Math.floor(Math.random() * candidates.length)];
+    target.style.setProperty('--jitter-intensity', GLITCH_CONFIG.jitter.intensity);
+    target.classList.add('glitch-jitter');
+
+    setTimeout(() => {
+        target.classList.remove('glitch-jitter');
+    }, 80);
+}
+
+function scheduleJitter() {
+    if (!GLITCH_CONFIG.enabled || !GLITCH_CONFIG.jitter.enabled) return;
+
+    const delay = randomInRange(GLITCH_CONFIG.jitter.minInterval, GLITCH_CONFIG.jitter.maxInterval);
+    setTimeout(() => {
+        triggerJitter();
+        scheduleJitter();
+    }, delay);
+}
+
+// Initialize all glitch effects
+function initGlitchEffects() {
+    if (!GLITCH_CONFIG.enabled) return;
+
+    initChromaticAberration();
+    scheduleScreenTear();
+    scheduleTextCorruption();
+    scheduleJitter();
+}

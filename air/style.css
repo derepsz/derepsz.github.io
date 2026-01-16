@@ -26,6 +26,12 @@
     --z-nav: 50;
     --z-lightbox: 50;
     --z-lightbox-close: 60;
+
+    /* Glitch effect variables (controlled by JS) */
+    --glitch-x: 0;
+    --glitch-y: 0;
+    --glitch-radial: 0;
+    --glitch-intensity: 1;
 }
 
 
@@ -552,3 +558,56 @@ section#works.active ~ .works-subnav {
         line-height: 1.75rem; /* 28px */
     }
 }
+
+
+/* ===============================================
+   14. GLITCH EFFECTS
+   =============================================== */
+
+/* Chromatic aberration on text - RGB channel split, radial from center */
+.glitch-chromatic {
+    text-shadow:
+        calc(var(--glitch-x) * var(--glitch-radial) * var(--glitch-intensity) * 3px) calc(var(--glitch-y) * var(--glitch-radial) * var(--glitch-intensity) * 1px) rgba(255, 0, 0, 0.8),
+        calc(var(--glitch-x) * var(--glitch-radial) * var(--glitch-intensity) * -3px) calc(var(--glitch-y) * var(--glitch-radial) * var(--glitch-intensity) * -1px) rgba(0, 255, 255, 0.8);
+}
+
+/* Screen tear effect - horizontal displacement */
+@keyframes screenTear {
+    0% {
+        clip-path: inset(0);
+        transform: translateX(0);
+    }
+    50% {
+        clip-path: inset(25% 0 45% 0);
+        transform: translateX(calc(var(--glitch-intensity) * 10px));
+    }
+    100% {
+        clip-path: inset(0);
+        transform: translateX(0);
+    }
+}
+
+.glitch-tear {
+    animation: screenTear 80ms steps(2) forwards;
+}
+
+/* Micro-jitter effect - brief positional glitch */
+@keyframes microJitter {
+    0%, 100% {
+        transform: translate(0, 0) skew(0);
+    }
+    25% {
+        transform: translate(calc(var(--jitter-intensity, 1) * 2px), calc(var(--jitter-intensity, 1) * -1px)) skew(calc(var(--jitter-intensity, 1) * 0.5deg));
+    }
+    50% {
+        transform: translate(calc(var(--jitter-intensity, 1) * -1px), 0) skew(calc(var(--jitter-intensity, 1) * -0.2deg));
+    }
+    75% {
+        transform: translate(calc(var(--jitter-intensity, 1) * -1px), calc(var(--jitter-intensity, 1) * 1px)) skew(calc(var(--jitter-intensity, 1) * -0.3deg));
+    }
+}
+
+.glitch-jitter {
+    animation: microJitter 60ms steps(4) forwards;
+}
+
