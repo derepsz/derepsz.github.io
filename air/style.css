@@ -250,13 +250,14 @@ section#works.active ~ .works-subnav {
    7. SECTIONS (Specific)
    =============================================== */
 
-#works {
-    padding-top: calc(var(--spacing-8) + 2rem); /* Extra padding for subnav on mobile */
+/* All sections get extra top padding to match Works (which has subnav) */
+section {
+    padding-top: calc(var(--spacing-8) + 2rem);
 }
 
 @media (min-width: 768px) {
-    #works {
-        padding-top: var(--spacing-16); /* Match other sections on desktop */
+    section {
+        padding-top: calc(var(--spacing-16) + 1.75rem);
     }
 }
 
