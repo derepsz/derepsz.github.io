@@ -3,32 +3,32 @@
 // ===============================
 
 const GLITCH_CONFIG = {
-    enabled: true,              // Master kill switch
+    enabled: true,
 
     chromatic: {
         enabled: true,
-        intensity: 2.0,         // CRANKED UP for testing
+        intensity: 2.0,
     },
 
     screenTear: {
         enabled: true,
-        minInterval: 7000,      // Every 2-5 seconds for testing
+        minInterval: 7000,
         maxInterval: 20000,
-        intensity: 0.5,         // CRANKED UP
+        intensity: 0.5,
     },
 
     textCorruption: {
         enabled: true,
-        minInterval: 100,      // Every 2-5 seconds for testing
-        maxInterval: 5000,
-        intensity: 7.0,         // Corrupt more chars
+        minInterval: 100,
+        maxInterval: 6000,
+        intensity: 7.0,
     },
 
     jitter: {
         enabled: true,
-        minInterval: 3000,      // Every 1-3 seconds for testing
+        minInterval: 3000,
         maxInterval: 10000,
-        intensity: 3.0,        // Multiplier for jitter displacement
+        intensity: 3.0,
     }
 };
 
@@ -39,82 +39,79 @@ const GLITCH_CONFIG = {
 
 const works = [
     {
-        id: 'work-1',
-        title: 'Project Title One',
+        id: 'xor',
+        title: 'XOR (eXtended Organic Reality)',
         media: [
             {
-                type: 'image',
-                path: './works/01.png'
+                type: 'slideshow',
+                path: [
+                    './works/vr/xor-editor.png',
+                    './works/vr/xor-site.png',
+                    './works/vr/xor-qr.png',
+                ]
             }
         ],
-        description: 'Description of the first project goes here.'
+        description: 'Proof of concept for a mobile-friendly gallery experience. \
+        <br> Follow link below to launch an interactive session in browser. If on desktop, \
+        use the mouse to move the joysticks. Or scan the QR to visit on mobile. \
+        <br><br><a href="https://repsz.de/xor" target="_blank" rel="noopener">Visit XOR</a>.'
     },
     {
-        id: 'work-2',
-        title: 'Audio Piece (with image)',
+        id: 'dntbd',
+        title: 'Hylics Resources',
         media: [
-            {
-                type: 'image',
-                path: './works/02.png'
-            },
             {
                 type: 'audio',
-                path: './works/dowedo_DER1_v0_251211.mp3'
+                path: './works/DNTBD.mp3',
+                poster: './works/DNTBD.png'
             }
         ],
-        description: 'An audio work exploring spatial sound.'
+        description: 'Visual score, audio edit of live electronics performance. Collaboration with Todd Hochradel.'
     },
     {
-        id: 'work-3',
-        title: 'Video Documentation',
-        media: [
-            {
-                type: 'video',
-                path: './works/a06_talking2_Trim.mp4'
-            }
-        ],
-        description: 'Video documentation of an installation.'
-    },
-    {
-        id: 'work-4',
-        title: 'Slideshow',
+        id: `shaderman`,
+        title: 'ENTER THE VOID',
         media: [
             {
                 type: 'slideshow',
-                // New format: items array supports mixed image/video
-                // items: [
-                //     { type: 'image', path: './works/04/04a.png' },
-                //     { type: 'video', path: './works/04/04b.mp4', poster: './works/04/04b-thumb.jpg' },
-                //     { type: 'image', path: './works/04/04c.png' }
-                // ]
-                // Old format still works:
-                path: [
-                    './works/04/04a.png',
-                    './works/04/04b.png',
-                    './works/04/04c.png',
-                    './works/04/04d.png'
-                ]
-            }
-        ],
-        description: 'A series of images.'
-    },
-        {
-        id: 'work-5',
-        title: 'Mixed Slideshow',
-        media: [
-            {
-                type: 'slideshow',
-                // New format: items array supports mixed image/video
                 items: [
-                    { type: 'image', path: './works/04/04a.png' },
-                    { type: 'video', path: './works/a06_talking2_Trim.mp4', poster: './works/04/04b.png' },
-                    { type: 'image', path: './works/04/04c.png' }
+                    { type: 'video', path: './works/job/enter-the-void.mp4', poster: './works/job/void-thumb.png' },
+                    { type: 'video', path: './works/job/projector.mp4', poster: './works/job/proj-thumb.png' },
                 ]
             }
         ],
-        description: 'A series of images.'
+        description: 'Bespoke application for runtime shader compilation and texture streaming \
+        over NDI network protocol.'
+    },
+    {
+        id: 'afterlife',
+        title: 'Afterlife',
+        media: [
+            {
+                type: 'image',
+                path: './works/vr/afterlife.gif'
+            }
+        ],
+        description: 'Virtual prototpe for realtime audio-reactive installation. \
+        Procedural graphics and networked lighting control.'
+    },
+    {
+        id: 'archives',
+        title: 'Relics',
+        media: [
+            {
+                type: 'slideshow',
+                items: [
+                    { type: 'image', path: './works/archives/readers-digest.jpg' },
+                    { type: 'video', path: './works/archives/shadows.m4v', poster: './works/archives/shadows-thumb.png' },
+                    { type: 'image', path: './works/archives/tape.JPG' },
+                    { type: 'image', path: './works/archives/being-there2.JPG' },
+                ]
+            }
+        ],
+        description: 'Selections from the Chicago archives, ~2010. Explorations in personal distance \
+        and technological mediation.'
     }
-    // Add more works here...
 ];
 
 
@@ -140,10 +137,20 @@ function renderMediaItem(item, workId) {
             `;
 
         case 'audio':
+            const audioPoster = item.poster || item.image;
             return `
-                <audio controls class="media media--audio">
-                    <source src="${item.path}" type="audio/mpeg">
-                </audio>
+                <div class="media media--audio">
+                    ${audioPoster ? `
+                        <img
+                            src="${audioPoster}"
+                            alt=""
+                            class="media__audio-poster"
+                        >
+                    ` : ''}
+                    <audio controls class="audio-controls">
+                        <source src="${item.path}" type="audio/mpeg">
+                    </audio>
+                </div>
             `;
 
         case 'video':
@@ -180,13 +187,15 @@ function renderMediaItem(item, workId) {
                 `;
             };
 
-            const renderThumb = (media) => {
+            const renderThumb = (media, index) => {
                 const thumbSrc = media.type === 'video' ? media.poster : media.path;
                 if (!thumbSrc) return '';
                 return `
                     <img
                         src="${thumbSrc}"
                         class="slideshow__thumb${media.type === 'video' ? ' slideshow__thumb--video' : ''}"
+                        data-slideshow="${slideshowId}"
+                        data-slide-index="${index}"
                         alt=""
                         aria-hidden="true"
                     >
@@ -215,7 +224,7 @@ function renderMediaItem(item, workId) {
                     </div>
 
                     <div class="slideshow__filmstrip">
-                        ${mediaItems.map(renderThumb).join('')}
+                        ${mediaItems.map((media, index) => renderThumb(media, index)).join('')}
                     </div>
                 </div>
             `;
@@ -283,7 +292,7 @@ function navigateSlideshow(slideshowId, direction) {
     if (!container) return;
 
     const scrollAmount = container.clientWidth;
-    
+
     if (direction === 'next') {
         container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
     } else {
@@ -341,10 +350,13 @@ function scrollToWork(workId) {
 document.addEventListener('DOMContentLoaded', () => {
     renderWorks();
 
-    // Populate subnav tooltips with work titles
+    // Populate subnav with work titles (only for first N links that match works count)
     document.querySelectorAll('.works-subnav__link').forEach((link, index) => {
         if (works[index]) {
             link.setAttribute('data-title', works[index].title);
+            link.style.display = ''; // Show link
+        } else {
+            link.style.display = 'none'; // Hide unused links
         }
     });
 
@@ -380,6 +392,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const slideshowId = e.target.getAttribute('data-slideshow');
             const direction = e.target.getAttribute('data-direction');
             navigateSlideshow(slideshowId, direction);
+        }
+    });
+
+    // Filmstrip thumbnail click navigation
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('slideshow__thumb')) {
+            const slideshowId = e.target.getAttribute('data-slideshow');
+            const slideIndex = parseInt(e.target.getAttribute('data-slide-index'), 10);
+            const container = document.getElementById(slideshowId);
+            if (container) {
+                const scrollAmount = container.clientWidth * slideIndex;
+                container.scrollTo({ left: scrollAmount, behavior: 'smooth' });
+            }
         }
     });
 
@@ -524,10 +549,9 @@ function corruptText(element) {
 
     element.textContent = chars.join('');
 
-    // Revert after visible moment (longer for testing)
     setTimeout(() => {
         element.textContent = original;
-    }, 300 + Math.random() * 400);
+    }, 200 + Math.random() * 200);
 }
 
 function triggerTextCorruption() {

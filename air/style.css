@@ -5,7 +5,7 @@
 :root {
     --color-foreground: #f1eacd;
     --color-background: #202020;
-    --color-gray-light: #d1d5db;
+    --color-gray-light: #f5a623;
 
     --spacing-1: 0.25rem;   /* 4px */
     --spacing-2: 0.5rem;    /* 8px */
@@ -55,6 +55,10 @@ body {
 
 * {
     box-sizing: border-box;
+}
+
+a {
+    color: var(--color-gray-light);
 }
 
 
@@ -107,7 +111,7 @@ section.active {
 }
 
 .section__text a {
-    color: var(--color-foreground);
+    color: var(--color-gray-light);
     text-decoration: underline;
 }
 
@@ -336,6 +340,15 @@ section {
     display: block;
 }
 
+.media__audio-poster {
+    width: 100%;
+    max-width: 42rem; /* 672px (max-w-2xl) - matches other media */
+    height: auto;
+    display: block;
+    margin-bottom: var(--spacing-4);
+    border: var(--border-width) var(--border-style) var(--color-foreground);
+}
+
 /* Video Media */
 .media--video {
     display: block;
@@ -445,6 +458,14 @@ section {
     flex-shrink: 0;
 
     filter: grayscale(0.2);
+    cursor: pointer;
+    transition: opacity var(--transition-speed) var(--transition-easing);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .slideshow__thumb:hover {
+        opacity: 0.7;
+    }
 }
 
 .slideshow__video {
