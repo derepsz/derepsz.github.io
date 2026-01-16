@@ -306,6 +306,13 @@ function scrollToWork(workId) {
 document.addEventListener('DOMContentLoaded', () => {
     renderWorks();
 
+    // Populate subnav tooltips with work titles
+    document.querySelectorAll('.works-subnav__link').forEach((link, index) => {
+        if (works[index]) {
+            link.setAttribute('data-title', works[index].title);
+        }
+    });
+
     // Lightbox event delegation
     document.addEventListener('click', (e) => {
         if (e.target.classList.contains('media__img--lightbox') ||

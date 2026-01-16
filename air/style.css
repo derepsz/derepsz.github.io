@@ -200,16 +200,42 @@ section#works.active ~ .works-subnav {
     font-size: 0.875rem; /* 14px */
     transition: background-color var(--transition-speed) var(--transition-easing),
                 color var(--transition-speed) var(--transition-easing);
+    position: relative;
 }
 
 .works-subnav__link:last-child {
     border-right: none;
 }
 
+/* Tooltip showing work title on hover */
+.works-subnav__link::after {
+    content: attr(data-title);
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: var(--spacing-1) var(--spacing-2);
+    background-color: var(--color-foreground);
+    color: var(--color-background);
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--transition-speed) var(--transition-easing);
+    pointer-events: none;
+    margin-top: var(--spacing-1);
+    z-index: calc(var(--z-subnav) + 1);
+}
+
 @media (hover: hover) and (pointer: fine) {
     .works-subnav__link:hover {
         background-color: var(--color-foreground);
         color: var(--color-background);
+    }
+
+    .works-subnav__link:hover::after {
+        opacity: 1;
+        visibility: visible;
     }
 }
 
