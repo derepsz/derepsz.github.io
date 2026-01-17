@@ -132,15 +132,15 @@ const works = [
             {
                 type: 'slideshow',
                 items: [
-                    { type: 'image', path: './works/archives/readers-digest.jpg' },
-                    { type: 'video', path: './works/archives/shadows.m4v', poster: './works/archives/shadows-thumb.png' },
-                    { type: 'image', path: './works/archives/tape.JPG' },
-                    { type: 'image', path: './works/archives/being-there2.JPG' },
+                    { type: 'image', path: './works/archives/readers-digest.jpg', caption: 'photocopies, commercial printed media, pulp' },
+                    { type: 'video', path: './works/archives/shadows.m4v', poster: './works/archives/shadows-thumb.png', caption: 'VHS recording, projection' },
+                    { type: 'image', path: './works/archives/tape.JPG', caption: 'memorex tape, audio recording' },
+                    { type: 'image', path: './works/archives/being-there2.JPG', caption: 'networked video, live video, projections' },
+                    { type: 'image', path: './works/archives/cross.JPG', caption: 'CPD barricade' }, 
                 ]
             }
         ],
-        description: 'Selections from the Chicago archives. Explorations in personal distance \
-        and technological mediation.'
+        description: 'Selections from the Chicago archives. Explorations in personal displacement, technological mediation, and commodity.'
     }
 ];
 
@@ -203,6 +203,7 @@ function renderMediaItem(item, workId) {
                             controls
                             class="slideshow__video"
                             ${media.poster ? `poster="${media.poster}"` : ''}
+                            ${media.caption ? `data-caption="${media.caption}"` : ''}
                         >
                             <source src="${media.path}" type="video/mp4">
                         </video>
@@ -213,9 +214,13 @@ function renderMediaItem(item, workId) {
                         src="${media.path}"
                         class="slideshow__image slideshow__image--lightbox"
                         data-full-src="${media.path}"
+                        ${media.caption ? `data-caption="${media.caption}"` : ''}
                     >
                 `;
             };
+
+            const hasCaptions = mediaItems.some(m => m.caption);
+            const firstCaption = mediaItems[0]?.caption || '';
 
             const renderThumb = (media, index) => {
                 const thumbSrc = media.type === 'video' ? media.poster : media.path;
@@ -252,6 +257,8 @@ function renderMediaItem(item, workId) {
                             >→</button>
                         </div>
                     </div>
+
+                    ${hasCaptions ? `<p class="slideshow__caption" data-slideshow-caption="${slideshowId}">${firstCaption}</p>` : ''}
 
                     <div class="slideshow__filmstrip">
                         ${mediaItems.map((media, index) => renderThumb(media, index)).join('')}
@@ -300,9 +307,10 @@ function renderWorks() {
 // ===============================
 
 let currentLightboxGallery = [];
+let currentLightboxCaptions = [];
 let currentLightboxIndex = 0;
 
-function openLightbox(imageSrc, gallery = null, index = 0) {
+function openLightbox(imageSrc, gallery = null, index = 0, captions = null) {
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
 
@@ -313,13 +321,25 @@ function openLightbox(imageSrc, gallery = null, index = 0) {
         // Store gallery context for navigation
         if (gallery && gallery.length > 1) {
             currentLightboxGallery = gallery;
+            currentLightboxCaptions = captions || [];
             currentLightboxIndex = index;
         } else {
             currentLightboxGallery = [];
+            currentLightboxCaptions = [];
             currentLightboxIndex = 0;
         }
 
         updateLightboxNav();
+        updateLightboxCaption();
+    }
+}
+
+function updateLightboxCaption() {
+    const lightboxCaption = document.getElementById('lightbox-caption');
+    if (lightboxCaption) {
+        const caption = currentLightboxCaptions[currentLightboxIndex] || '';
+        lightboxCaption.textContent = caption;
+        lightboxCaption.style.display = caption ? '' : 'none';
     }
 }
 
@@ -328,6 +348,7 @@ function closeLightbox() {
     if (lightbox) {
         lightbox.classList.remove('lightbox--open');
         currentLightboxGallery = [];
+        currentLightboxCaptions = [];
         currentLightboxIndex = 0;
     }
 }
@@ -347,6 +368,7 @@ function navigateLightbox(direction) {
     }
 
     updateLightboxNav();
+    updateLightboxCaption();
 }
 
 function updateLightboxNav() {
@@ -381,6 +403,21 @@ function navigateSlideshow(slideshowId, direction) {
         container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
     } else {
         container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    }
+}
+
+function updateSlideshowCaption(slideshowId) {
+    const container = document.getElementById(slideshowId);
+    const captionEl = document.querySelector(`[data-slideshow-caption="${slideshowId}"]`);
+    if (!container || !captionEl) return;
+
+    const slideWidth = container.clientWidth;
+    const currentIndex = Math.round(container.scrollLeft / slideWidth);
+    const slides = container.querySelectorAll('.slideshow__image, .slideshow__video');
+    const currentSlide = slides[currentIndex];
+
+    if (currentSlide) {
+        captionEl.textContent = currentSlide.dataset.caption || '';
     }
 }
 
@@ -435,6 +472,13 @@ document.addEventListener('DOMContentLoaded', () => {
     renderWorks();
     renderDiyGrid();
 
+    // Attach scroll listeners for slideshow captions
+    document.querySelectorAll('.slideshow__container').forEach(container => {
+        container.addEventListener('scroll', throttle(() => {
+            updateSlideshowCaption(container.id);
+        }, 100));
+    });
+
     // Populate subnav with work titles (only for first N links that match works count)
     document.querySelectorAll('.works-subnav__link').forEach((link, index) => {
         if (works[index]) {
@@ -463,8 +507,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (container) {
                     const images = Array.from(container.querySelectorAll('.slideshow__image--lightbox'));
                     const gallery = images.map(img => img.getAttribute('data-full-src'));
+                    const captions = images.map(img => img.dataset.caption || '');
                     const index = gallery.indexOf(fullSrc);
-                    openLightbox(fullSrc, gallery, index >= 0 ? index : 0);
+                    openLightbox(fullSrc, gallery, index >= 0 ? index : 0, captions);
                 } else {
                     openLightbox(fullSrc);
                 }
