@@ -38,18 +38,16 @@ const GLITCH_CONFIG = {
 // ===============================
 
 const diyImages = [
-    'IMG_0112.JPG',
-    'IMG_0218.JPG',
-    'IMG_1304.JPG',
-    'IMG_1310.JPG',
-    'IMG_1433.JPG',
-    'R0014587.JPG',
-    'R0014593.JPG',
-    'R0014594.JPG',
-    'R0014605.JPG',
-    'R0014606.JPG',
-    'R0014609.JPG',
-    'R0014623.JPG',
+    'spudnik/entry.JPG',
+    'nm-dans/perf.JPG',
+    'lec/speaker.JPG',
+    'spudnik/band.JPG',
+    'spudnik/press.JPG',
+    'lec/crowd.JPG',
+    'nm-dans/viz1.JPG',
+    'spudnik/setup.JPG',
+    'self.JPG',
+    'theres-an-outside-to-this-place.JPG',
 ];
 
 const diyBasePath = 'works/archives/happydog/';
