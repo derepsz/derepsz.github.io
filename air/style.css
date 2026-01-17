@@ -146,6 +146,42 @@ section.active {
     border: var(--border-width) var(--border-style) var(--color-foreground);
 }
 
+/* DIY Grid */
+.diy-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Mobile: 3 columns */
+    gap: var(--spacing-2);
+    max-width: 56rem; /* Wider to accommodate more columns */
+    width: 100%;
+}
+
+@media (min-width: 640px) {
+    .diy-grid {
+        grid-template-columns: repeat(4, 1fr); /* Tablet: 4 columns */
+    }
+}
+
+@media (min-width: 1024px) {
+    .diy-grid {
+        grid-template-columns: repeat(5, 1fr); /* Desktop: 5 columns */
+    }
+}
+
+.diy-grid__img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border: var(--border-width) var(--border-style) var(--color-foreground);
+    cursor: pointer;
+    transition: opacity var(--transition-speed) var(--transition-easing);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .diy-grid__img:hover {
+        opacity: 0.8;
+    }
+}
+
 
 /* ===============================================
    5. NAVIGATION (Main)
