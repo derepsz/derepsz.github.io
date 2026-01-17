@@ -34,6 +34,38 @@ const GLITCH_CONFIG = {
 
 
 // ===============================
+// DIY GALLERY
+// ===============================
+
+const diyImages = [
+    'IMG_0112.JPG',
+    'IMG_0218.JPG',
+    'IMG_1304.JPG',
+    'IMG_1310.JPG',
+    'IMG_1433.JPG',
+    'R0014587.JPG',
+    'R0014593.JPG',
+    'R0014594.JPG',
+    'R0014605.JPG',
+    'R0014606.JPG',
+    'R0014609.JPG',
+    'R0014623.JPG',
+];
+
+const diyBasePath = 'works/archives/happydog/';
+
+function renderDiyGrid() {
+    const container = document.querySelector('.diy-grid');
+    if (!container) return;
+
+    container.innerHTML = diyImages.map(filename => {
+        const src = diyBasePath + filename;
+        return `<img src="${src}" class="diy-grid__img media__img--lightbox" data-full-src="${src}" alt="">`;
+    }).join('');
+}
+
+
+// ===============================
 // CATALOG
 // ===============================
 
@@ -353,6 +385,7 @@ function scrollToWork(workId) {
 
 document.addEventListener('DOMContentLoaded', () => {
     renderWorks();
+    renderDiyGrid();
 
     // Populate subnav with work titles (only for first N links that match works count)
     document.querySelectorAll('.works-subnav__link').forEach((link, index) => {
