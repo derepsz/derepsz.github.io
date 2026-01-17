@@ -301,13 +301,27 @@ function renderWorks() {
 // LIGHTBOX
 // ===============================
 
-function openLightbox(imageSrc) {
+let currentLightboxGallery = [];
+let currentLightboxIndex = 0;
+
+function openLightbox(imageSrc, gallery = null, index = 0) {
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
 
     if (lightbox && lightboxImg) {
         lightboxImg.src = imageSrc;
         lightbox.classList.add('lightbox--open');
+
+        // Store gallery context for navigation
+        if (gallery && gallery.length > 1) {
+            currentLightboxGallery = gallery;
+            currentLightboxIndex = index;
+        } else {
+            currentLightboxGallery = [];
+            currentLightboxIndex = 0;
+        }
+
+        updateLightboxNav();
     }
 }
 
@@ -315,6 +329,42 @@ function closeLightbox() {
     const lightbox = document.getElementById('lightbox');
     if (lightbox) {
         lightbox.classList.remove('lightbox--open');
+        currentLightboxGallery = [];
+        currentLightboxIndex = 0;
+    }
+}
+
+function navigateLightbox(direction) {
+    if (currentLightboxGallery.length === 0) return;
+
+    if (direction === 'prev' && currentLightboxIndex > 0) {
+        currentLightboxIndex--;
+    } else if (direction === 'next' && currentLightboxIndex < currentLightboxGallery.length - 1) {
+        currentLightboxIndex++;
+    }
+
+    const lightboxImg = document.getElementById('lightbox-img');
+    if (lightboxImg) {
+        lightboxImg.src = currentLightboxGallery[currentLightboxIndex];
+    }
+
+    updateLightboxNav();
+}
+
+function updateLightboxNav() {
+    const prevBtn = document.getElementById('lightbox-prev');
+    const nextBtn = document.getElementById('lightbox-next');
+
+    if (prevBtn && nextBtn) {
+        // Hide nav if no gallery or single image
+        const showNav = currentLightboxGallery.length > 1;
+        prevBtn.style.display = showNav ? '' : 'none';
+        nextBtn.style.display = showNav ? '' : 'none';
+
+        if (showNav) {
+            prevBtn.disabled = currentLightboxIndex === 0;
+            nextBtn.disabled = currentLightboxIndex === currentLightboxGallery.length - 1;
+        }
     }
 }
 
@@ -402,7 +452,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.classList.contains('media__img--lightbox') ||
             e.target.classList.contains('slideshow__image--lightbox')) {
             const fullSrc = e.target.getAttribute('data-full-src');
-            openLightbox(fullSrc);
+
+            // Check if this image is part of the DIY grid
+            if (e.target.classList.contains('diy-grid__img')) {
+                const gallery = diyImages.map(f => diyBasePath + f);
+                const index = gallery.indexOf(fullSrc);
+                openLightbox(fullSrc, gallery, index >= 0 ? index : 0);
+            } else {
+                openLightbox(fullSrc);
+            }
         }
     });
 
@@ -416,10 +474,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Close lightbox with Escape key
+    // Lightbox navigation buttons
+    document.getElementById('lightbox-prev')?.addEventListener('click', () => navigateLightbox('prev'));
+    document.getElementById('lightbox-next')?.addEventListener('click', () => navigateLightbox('next'));
+
+    // Close lightbox with Escape, navigate with arrow keys
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             closeLightbox();
+        } else if (e.key === 'ArrowLeft') {
+            navigateLightbox('prev');
+        } else if (e.key === 'ArrowRight') {
+            navigateLightbox('next');
         }
     });
 
