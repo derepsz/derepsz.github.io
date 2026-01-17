@@ -458,6 +458,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 const gallery = diyImages.map(f => diyBasePath + f);
                 const index = gallery.indexOf(fullSrc);
                 openLightbox(fullSrc, gallery, index >= 0 ? index : 0);
+            }
+            // Check if this image is part of a slideshow
+            else if (e.target.classList.contains('slideshow__image--lightbox')) {
+                const container = e.target.closest('.slideshow__container');
+                if (container) {
+                    const images = Array.from(container.querySelectorAll('.slideshow__image--lightbox'));
+                    const gallery = images.map(img => img.getAttribute('data-full-src'));
+                    const index = gallery.indexOf(fullSrc);
+                    openLightbox(fullSrc, gallery, index >= 0 ? index : 0);
+                } else {
+                    openLightbox(fullSrc);
+                }
             } else {
                 openLightbox(fullSrc);
             }
