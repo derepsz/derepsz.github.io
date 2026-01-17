@@ -54,11 +54,11 @@ const works = [
         description: 'Proof of concept for a mobile-friendly gallery experience. \
         <br> Follow link below to launch an interactive session in browser. If on desktop, \
         use the mouse to move the joysticks. Or scan the QR to visit on mobile. \
-        <br><br><a href="https://repsz.de/xor" target="_blank" rel="noopener">Visit XOR</a>.'
+        <br><br><a href="https://repsz.de/xor" target="_blank" rel="noopener">Visit XOR</a>'
     },
     {
         id: 'dntbd',
-        title: 'Hylics Resources - 2024',
+        title: 'Hylic Resources - 2024',
         media: [
             {
                 type: 'audio',
@@ -240,6 +240,10 @@ function renderMediaItem(item, workId) {
 // RENDER ALL WORKS
 // ===============================
 
+function wrapLinks(html) {
+    return html.replace(/<a\s/g, '<span class="no-corrupt"><a ').replace(/<\/a>/g, '</a></span>');
+}
+
 function renderWorks() {
     const container = document.getElementById('works-container');
 
@@ -254,7 +258,7 @@ function renderWorks() {
             `).join('')}
 
             <p class="work__description">
-                ${work.description}
+                ${wrapLinks(work.description)}
             </p>
         </div>
     `).join('');
@@ -559,9 +563,12 @@ function triggerTextCorruption() {
 
     // Select random text element
     const candidates = document.querySelectorAll('.section__title, .work__title, .nav__link, .work__description');
-    if (candidates.length === 0) return;
 
-    const target = candidates[Math.floor(Math.random() * candidates.length)];
+    // Filter out elements that contain .no-corrupt children
+    const filtered = Array.from(candidates).filter(el => !el.querySelector('.no-corrupt'));
+    if (filtered.length === 0) return;
+
+    const target = filtered[Math.floor(Math.random() * filtered.length)];
     corruptText(target);
 }
 
